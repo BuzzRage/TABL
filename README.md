@@ -15,3 +15,9 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
 * Generate a random chord progression that loops
 * Add a button to listen and see all triads
 * Add a button to listan and see all sevenths
+* Build a transcoder from binary representation of tones into actual scale (i.e. 101011010101 = Major)
+
+## Done
+* Randomly generate a tonic and a scale, play the scale and print the valid notes
+* Add a button to randomize again
+* Add a replay button

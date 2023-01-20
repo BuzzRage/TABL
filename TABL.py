@@ -25,17 +25,19 @@ minor_harmonique_hex = format(0b101101011001, 'x')
 scales = {"major":            (major, major_hex), 
           "natural minor":    (minor_natural, minor_natural_hex), 
           "harmonic minor":   (minor_harmonique, minor_natural_hex)}
+current_tonic = "C"
+current_scale = "major"
 
 note_gui  = Label(gui, text="", bg="black", pady=50, font=("Helvetica", 40))
 scale_gui = Label(gui, text="", bg="black", fg="black", font=("Helvetica", 20))
 gui.configure(bg="black")
 
 def play_scale(scale, tonic, mute=False):
-    if scale is "major":
+    if scale == "major":
         valid_notes = s.Major(tonic).ascending()
-    elif scale is "natural minor":
+    elif scale == "natural minor":
         valid_notes = s.NaturalMinor(tonic).ascending()
-    elif scale is "harmonic minor":
+    elif scale == "harmonic minor":
         valid_notes = s.HarmonicMinor(tonic).ascending()
         
     if mute is True:
@@ -52,18 +54,31 @@ def play_scale(scale, tonic, mute=False):
         sleep(0.5)
     
     return valid_notes
-        
-def randomize_selection(mute=False):
-    note  = random.choice(notes)
-    scale = random.choice(list(scales.keys()))
+    
+def update_gui(valid_notes):
+    scale = " ".join(s.determine(valid_notes)[0].split(" ")[1:])
     gui.configure(bg="#"+scales[scale][1])
-    note_gui.config(bg="#"+scales[scale][1], text=note+"\n"+scale)
-    valid_notes = play_scale(scale, note, mute)
+    note_gui.config(bg="#"+scales[scale][1], text=valid_notes[0]+"\n"+scale)
     scale_gui.config(text=valid_notes, bg="#"+scales[scale][1])
-    return (note, scale)
+    
+def randomize_selection():
+    global current_tonic
+    global current_scale
+    current_tonic = random.choice(notes)
+    current_scale = random.choice(list(scales.keys()))
+    play_selection(current_tonic, current_scale)
+
+def play_selection(tonic=False, scale=False, mute=False):
+    if tonic is False or scale is False:
+        tonic = current_tonic
+        scale = current_scale
+    valid_notes = play_scale(scale, tonic, mute)
+    update_gui(valid_notes)
+    
 
 
-random_b = Button(gui, text = "Randomize", command=randomize_selection).pack()
+random_b = Button(gui, text = "Randomize", command=randomize_selection).place(relx=0.3, rely=0.9, anchor=CENTER)
+replay_b = Button(gui, text = "Replay", command=play_selection).place(relx=0.6, rely=0.9, anchor=CENTER)
 note_gui.pack()
 scale_gui.pack()
 
