@@ -2,10 +2,15 @@
 
 import random
 from tkinter import *
+from mingus.containers import *
+from mingus.midi import fluidsynth
 
 gui =Tk()
 gui.geometry("400x200")
 gui.title("Tool-Assisted Backing Loop")
+
+# You may want to change the soundfont file or the audio driver !
+fluidsynth.init("TimGM6mb.sf2", "pulseaudio")
 
 notes = ["C","C#","D","Eb","E","F","F#","G","Ab","A","Bb","B"]
 major            = (1,0,1,0,1,1,0,1,0,1,0,1)
@@ -26,6 +31,7 @@ def randomize_selection():
     scale = random.choice(list(scales.keys()))
     gui.configure(bg="#"+scales[scale][1])
     note_gui.config(bg="#"+scales[scale][1], text=note+"\n"+scale)
+    fluidsynth.play_Note(Note(note))
     return (note, scale)
 
 selected_note,selected_scale = randomize_selection() 
@@ -35,7 +41,12 @@ random_b = Button(gui, text = "Randomize", command=randomize_selection).pack()
 note_gui.pack()
 note_gui.configure(text=selected_note+"\n"+selected_scale, bg="#"+scales[selected_scale][1])
 gui.configure(bg="#"+scales[selected_scale][1])
-gui.mainloop()
 
 print("Tonic key: {}".format(selected_note))
 print("Scale: {}".format(selected_scale))
+
+
+fluidsynth.play_Note(Note(selected_note))
+
+
+gui.mainloop()
