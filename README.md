@@ -8,3 +8,10 @@ This works with `Tkinter` for the GUI, and `fluidsynth` for the sound. You may n
 You can change the soundfont to another (by default, this program uses `TimGM6mb.sf2` which is light enough to be provided within a github repository).
 
 
+## TO DO
+
+* Let the user choose a tonic note and a scale
+* Improve scale display by putting a tabulation for each semitone not valid in a scale
+* Generate a random chord progression that loops
+* Add a button to listen and see all triads
+* Add a button to listan and see all sevenths

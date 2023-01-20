@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 
 import random
+from time import sleep
 from tkinter import *
+import mingus.core.keys as k
+import mingus.core.scales as s
 from mingus.containers import *
 from mingus.midi import fluidsynth
 
 gui =Tk()
-gui.geometry("400x200")
+gui.geometry("400x300")
 gui.title("Tool-Assisted Backing Loop")
 
 # You may want to change the soundfont file or the audio driver !
@@ -23,30 +26,45 @@ scales = {"major":            (major, major_hex),
           "natural minor":    (minor_natural, minor_natural_hex), 
           "harmonic minor":   (minor_harmonique, minor_natural_hex)}
 
-note_gui = Label(gui, text="", bg="black", pady=100, font=("Helvetica", 40))
+note_gui  = Label(gui, text="", bg="black", pady=50, font=("Helvetica", 40))
+scale_gui = Label(gui, text="", bg="black", fg="black", font=("Helvetica", 20))
 gui.configure(bg="black")
 
-def randomize_selection():
+def play_scale(scale, tonic, mute=False):
+    if scale is "major":
+        valid_notes = s.Major(tonic).ascending()
+    elif scale is "natural minor":
+        valid_notes = s.NaturalMinor(tonic).ascending()
+    elif scale is "harmonic minor":
+        valid_notes = s.HarmonicMinor(tonic).ascending()
+        
+    if mute is True:
+        return valid_notes
+    
+    octave = 3 if valid_notes[0][0] == 'C' else 4
+
+    print(valid_notes)
+    for n in valid_notes:
+        if n[0] == 'C':
+            octave += 1
+        print(n+" " +str(octave))
+        fluidsynth.play_Note(Note(n+"-"+str(octave)))
+        sleep(0.5)
+    
+    return valid_notes
+        
+def randomize_selection(mute=False):
     note  = random.choice(notes)
     scale = random.choice(list(scales.keys()))
     gui.configure(bg="#"+scales[scale][1])
     note_gui.config(bg="#"+scales[scale][1], text=note+"\n"+scale)
-    fluidsynth.play_Note(Note(note))
+    valid_notes = play_scale(scale, note, mute)
+    scale_gui.config(text=valid_notes, bg="#"+scales[scale][1])
     return (note, scale)
-
-selected_note,selected_scale = randomize_selection() 
 
 
 random_b = Button(gui, text = "Randomize", command=randomize_selection).pack()
 note_gui.pack()
-note_gui.configure(text=selected_note+"\n"+selected_scale, bg="#"+scales[selected_scale][1])
-gui.configure(bg="#"+scales[selected_scale][1])
-
-print("Tonic key: {}".format(selected_note))
-print("Scale: {}".format(selected_scale))
-
-
-fluidsynth.play_Note(Note(selected_note))
-
+scale_gui.pack()
 
 gui.mainloop()
