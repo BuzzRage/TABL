@@ -16,6 +16,8 @@ gui.title("Tool-Assisted Backing Loop")
 fluidsynth.init("TimGM6mb.sf2", "pulseaudio")
 
 notes = ["C","C#","D","Eb","E","F","F#","G","Ab","A","Bb","B"]
+notes_hz = [261.625, 277.182, 293.664, 311.126, 329.627, 349.228, 369.994, 391.995, 415.304, 440.000, 466.163, 493.883]
+notes_dict = dict(zip(notes, notes_hz))
 major            = (1,0,1,0,1,1,0,1,0,1,0,1)
 minor_natural    = (1,0,1,1,0,1,0,1,1,0,1,0)
 minor_harmonique = (1,0,1,1,0,1,0,1,1,0,0,1)
@@ -56,10 +58,11 @@ def play_scale(scale, tonic, mute=False):
     return valid_notes
     
 def update_gui(valid_notes):
-    scale = " ".join(s.determine(valid_notes)[0].split(" ")[1:])
-    gui.configure(bg="#"+scales[scale][1])
-    note_gui.config(bg="#"+scales[scale][1], text=valid_notes[0]+"\n"+scale)
-    scale_gui.config(text=valid_notes, bg="#"+scales[scale][1])
+    scale = current_scale
+    hexa_code = hex(int(scales[scale][1], 16) + int(notes_dict[valid_notes[0]]))[2:]
+    gui.configure(bg="#"+hexa_code)
+    note_gui.config(bg="#"+hexa_code, text=valid_notes[0]+"\n"+scale)
+    scale_gui.config(text=valid_notes, bg="#"+hexa_code)
     
 def randomize_selection():
     global current_tonic
@@ -78,7 +81,7 @@ def play_selection(tonic=False, scale=False, mute=False):
 
 
 random_b = Button(gui, text = "Randomize", command=randomize_selection).place(relx=0.3, rely=0.9, anchor=CENTER)
-replay_b = Button(gui, text = "Replay", command=play_selection).place(relx=0.6, rely=0.9, anchor=CENTER)
+replay_b = Button(gui, text = "Replay", command=play_selection).place(relx=0.7, rely=0.9, anchor=CENTER)
 note_gui.pack()
 scale_gui.pack()
 

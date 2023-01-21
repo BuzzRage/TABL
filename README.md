@@ -21,3 +21,4 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
 * Randomly generate a tonic and a scale, play the scale and print the valid notes
 * Add a button to randomize again
 * Add a replay button
+* Make the tonic change the color (e.g. A = 440 Hz, add 0x440 to the hexacode of a scale)
