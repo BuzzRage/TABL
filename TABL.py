@@ -9,7 +9,7 @@ from mingus.containers import *
 from mingus.midi import fluidsynth
 
 gui =Tk()
-gui.geometry("400x300")
+gui.geometry("400x400")
 gui.title("Tool-Assisted Backing Loop")
 
 # You may want to change the soundfont file or the audio driver !
@@ -30,9 +30,17 @@ scales = {"major":            (major, major_hex),
 current_tonic = "C"
 current_scale = "major"
 
-note_gui  = Label(gui, text="", bg="black", pady=50, font=("Helvetica", 40))
+note_gui  = Label(gui, text="", bg="black", pady=30, font=("Helvetica", 40))
 scale_gui = Label(gui, text="", bg="black", fg="black", font=("Helvetica", 20))
 gui.configure(bg="black")
+
+class Callback:
+    def __init__(self, callback, *firstArgs):
+        self.__callback = callback
+        self.__firstArgs = firstArgs
+
+    def __call__(self, *args):
+        return self.__callback (*(self.__firstArgs + args))
 
 def play_scale(scale, tonic, mute=False):
     if scale == "major":
@@ -70,7 +78,12 @@ def randomize_selection():
     current_tonic = random.choice(notes)
     current_scale = random.choice(list(scales.keys()))
     play_selection(current_tonic, current_scale)
-
+    
+def user_selection(tonic):
+    global current_tonic
+    current_tonic = tonic
+    play_selection(current_tonic, current_scale)
+    
 def play_selection(tonic=False, scale=False, mute=False):
     if tonic is False or scale is False:
         tonic = current_tonic
@@ -82,7 +95,16 @@ def play_selection(tonic=False, scale=False, mute=False):
 
 random_b = Button(gui, text = "Randomize", command=randomize_selection).place(relx=0.3, rely=0.9, anchor=CENTER)
 replay_b = Button(gui, text = "Replay", command=play_selection).place(relx=0.7, rely=0.9, anchor=CENTER)
-note_gui.pack()
-scale_gui.pack()
+notes_b = list()
+drift = 0.11
+for note in notes:
+    callback = Callback(user_selection, note)
+    if len(note) == 1:
+        notes_b.append(Button(gui, bg='#FFFFFF', fg ='#000000', text = note, command=callback).place(relx=drift, rely=0.01, anchor=NE))
+    else:
+        notes_b.append(Button(gui, bg='#000000', fg ='#FFFFFF', text = note, command=callback).place(relx=drift, rely=0.12, anchor=NE))
+    drift += 0.08
+note_gui.place(relx=0.5, rely=0.4, anchor=CENTER)
+scale_gui.place(relx=0.5, rely=0.8, anchor=CENTER)
 
 gui.mainloop()
