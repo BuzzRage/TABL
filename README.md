@@ -10,15 +10,19 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
 
 ## TO DO
 
-* Let the user choose a tonic note and a scale
+* Let the user choose a scale
 * Improve scale display by putting a tabulation for each semitone not valid in a scale
 * Generate a random chord progression that loops
-* Add a button to listen and see all triads
+* Add a button to see all triads
 * Add a button to listan and see all sevenths
 * Build a transcoder from binary representation of tones into actual scale (i.e. 101011010101 = Major)
+* When playing a chords, change color of played notes in the scale label
 
 ## Done
+
 * Randomly generate a tonic and a scale, play the scale and print the valid notes
 * Add a button to randomize again
 * Add a replay button
 * Make the tonic change the color (e.g. A = 440 Hz, add 0x440 to the hexacode of a scale)
+* Let the user choose a tonic note
+* Add a button to listen all triads of the current scale and last selected tonic

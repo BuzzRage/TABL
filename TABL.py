@@ -30,6 +30,8 @@ scales = {"major":            (major, major_hex),
 current_tonic = "C"
 current_scale = "major"
 
+time_step = 0.4
+
 note_gui  = Label(gui, text="", bg="black", pady=30, font=("Helvetica", 40))
 scale_gui = Label(gui, text="", bg="black", fg="black", font=("Helvetica", 20))
 gui.configure(bg="black")
@@ -42,16 +44,19 @@ class Callback:
     def __call__(self, *args):
         return self.__callback (*(self.__firstArgs + args))
 
-def play_scale(scale, tonic, mute=False):
+def get_scale(tonic, scale):
     if scale == "major":
         valid_notes = s.Major(tonic).ascending()
     elif scale == "natural minor":
         valid_notes = s.NaturalMinor(tonic).ascending()
     elif scale == "harmonic minor":
         valid_notes = s.HarmonicMinor(tonic).ascending()
-        
-    if mute is True:
-        return valid_notes
+    else:
+        print("Error: Invalid scale provided in get_scale()")
+    return valid_notes
+    
+def play_scale(tonic, scale):
+    valid_notes = get_scale(tonic, scale)
     
     octave = 3 if valid_notes[0][0] == 'C' else 4
 
@@ -61,9 +66,29 @@ def play_scale(scale, tonic, mute=False):
             octave += 1
         print(n+" " +str(octave))
         fluidsynth.play_Note(Note(n+"-"+str(octave)))
-        sleep(0.5)
+        sleep(time_step)
     
     return valid_notes
+    
+def play_triads(tonic=False, scale=False):
+    if tonic is False or scale is False:
+        tonic = current_tonic
+        scale = current_scale
+    
+    valid_chords = list()
+    
+    valid_notes = get_scale(tonic, scale)
+    i = 0
+    for degree in valid_notes:
+        chords = [ valid_notes[i], valid_notes[(i+2)%(len(valid_notes)-1)], valid_notes[(i+4)%(len(valid_notes)-1)] ]
+        valid_chords.append(chords)
+        i += 1
+    
+    for chords in valid_chords:
+        print(chords)
+        fluidsynth.play_NoteContainer(NoteContainer(chords))
+        sleep(time_step)
+
     
 def update_gui(valid_notes):
     scale = current_scale
@@ -84,17 +109,17 @@ def user_selection(tonic):
     current_tonic = tonic
     play_selection(current_tonic, current_scale)
     
-def play_selection(tonic=False, scale=False, mute=False):
+def play_selection(tonic=False, scale=False):
     if tonic is False or scale is False:
         tonic = current_tonic
         scale = current_scale
-    valid_notes = play_scale(scale, tonic, mute)
+    valid_notes = play_scale(tonic, scale)
     update_gui(valid_notes)
     
-
-
-random_b = Button(gui, text = "Randomize", command=randomize_selection).place(relx=0.3, rely=0.9, anchor=CENTER)
-replay_b = Button(gui, text = "Replay", command=play_selection).place(relx=0.7, rely=0.9, anchor=CENTER)
+    
+random_b = Button(gui, text = "Randomize", command=randomize_selection).place(relx=0.2, rely=0.9, anchor=CENTER)
+replay_b = Button(gui, text = "Replay", command=play_selection).place(relx=0.6, rely=0.9, anchor=CENTER)
+triads_b = Button(gui, text = "Triads", command=play_triads).place(relx=0.8, rely=0.9, anchor=CENTER)
 notes_b = list()
 drift = 0.11
 for note in notes:
@@ -104,6 +129,7 @@ for note in notes:
     else:
         notes_b.append(Button(gui, bg='#000000', fg ='#FFFFFF', text = note, command=callback).place(relx=drift, rely=0.12, anchor=NE))
     drift += 0.08
+
 note_gui.place(relx=0.5, rely=0.4, anchor=CENTER)
 scale_gui.place(relx=0.5, rely=0.8, anchor=CENTER)
 
