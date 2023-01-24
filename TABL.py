@@ -16,8 +16,9 @@ gui.title("Tool-Assisted Backing Loop")
 fluidsynth.init("TimGM6mb.sf2", "pulseaudio")
 
 notes = ["C","C#","D","Eb","E","F","F#","G","Ab","A","Bb","B"]
-notes_hz = [261.625, 277.182, 293.664, 311.126, 329.627, 349.228, 369.994, 391.995, 415.304, 440.000, 466.163, 493.883]
-notes_dict = dict(zip(notes, notes_hz))
+notes_f = ["C","C#","Db","D","D#","Eb","E","Fb","E#","F","F#","Gb","G","G#","Ab","A","A#","Bb","B","Cb","B#"]
+notes_hz = [261.625, 277.182, 277.182, 293.664, 311.126, 311.126, 329.627, 329.627, 349.228, 349.228, 369.994, 369.994, 391.995, 415.304, 415.304, 440.000, 466.163, 466.163, 493.883, 493.883, 261.625]
+notes_dict = dict(zip(notes_f, notes_hz))
 major            = (1,0,1,0,1,1,0,1,0,1,0,1)
 minor_natural    = (1,0,1,1,0,1,0,1,1,0,1,0)
 minor_harmonique = (1,0,1,1,0,1,0,1,1,0,0,1)
@@ -34,6 +35,7 @@ time_step = 0.4
 
 note_gui  = Label(gui, text="", bg="black", pady=30, font=("Helvetica", 40))
 scale_gui = Label(gui, text="", bg="black", fg="black", font=("Helvetica", 20))
+chord_gui = Label(gui, text="", bg="black", fg="#FF0000", font=("Helvetica", 20))
 gui.configure(bg="black")
 
 class Callback:
@@ -87,15 +89,32 @@ def play_triads(tonic=False, scale=False):
     for chords in valid_chords:
         print(chords)
         fluidsynth.play_NoteContainer(NoteContainer(chords))
+        update_gui(chords, chords_display=True)
         sleep(time_step)
 
     
-def update_gui(valid_notes):
+def update_gui(valid_notes, chords_display=False):
     scale = current_scale
     hexa_code = hex(int(scales[scale][1], 16) + int(notes_dict[valid_notes[0]]))[2:]
+
     gui.configure(bg="#"+hexa_code)
     note_gui.config(bg="#"+hexa_code, text=valid_notes[0]+"\n"+scale)
-    scale_gui.config(text=valid_notes, bg="#"+hexa_code)
+    if chords_display is True:
+        current_text = set(scale_gui["text"])
+        diff = current_text - current_text.difference(set(valid_notes))
+        print(diff)
+        chord_label = list()
+        for letter in scale_gui["text"][:-1]:
+            if letter in diff:
+                chord_label.append(letter)
+            else:
+                chord_label.append(" ")
+        chord_label = " ".join(chord_label)
+        print("Valid chords: "+chord_label)
+        chord_gui.config(text=chord_label, bg="#"+hexa_code)
+    else:
+        scale_gui.config(text=" ".join(valid_notes), bg="#"+hexa_code)
+        chord_gui.config(text="", bg="#"+hexa_code)
     
 def randomize_selection():
     global current_tonic
@@ -132,5 +151,6 @@ for note in notes:
 
 note_gui.place(relx=0.5, rely=0.4, anchor=CENTER)
 scale_gui.place(relx=0.5, rely=0.8, anchor=CENTER)
+chord_gui.place(relx=0.5, rely=0.7, anchor=CENTER)
 
 gui.mainloop()

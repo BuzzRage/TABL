@@ -17,6 +17,7 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
 * Add a button to listan and see all sevenths
 * Build a transcoder from binary representation of tones into actual scale (i.e. 101011010101 = Major)
 * When playing a chords, change color of played notes in the scale label
+* Let the user choose the time step
 
 ## Done
 
