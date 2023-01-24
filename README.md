@@ -14,7 +14,7 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
     * Generate a random chord progression that loops
     * Let the user choose the time step
     * Add a button to see all triads
-    * Add a button to listen and see all sevenths
+    * Add a button to see all sevenths
     
 * GUI:
     * Improve scale display by putting a tabulation for each semitone not valid in a scale
@@ -39,6 +39,7 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
     * Let the user choose a tonic note
     * Add a button to listen all triads of the current scale and last selected tonic
     * Let the user choose a scale
+    * Add a button to listen all sevenths
 
 * GUI:
     * Make the tonic change the color (e.g. A = 440 Hz, add 0x440 to the hexacode of a scale)

@@ -88,7 +88,7 @@ def play_note(octave, scale,count=0):
     fluidsynth.play_Note(Note(scale[count]+"-"+str(octave)))
     gui.after(int(time_step*1000), lambda: play_note(octave, scale, count+1))
     
-def play_triads(tonic=False, scale=False):
+def play_all_chords(tonic=False, scale=False, sevenths=False):
     if tonic is False or scale is False:
         tonic = current_tonic
         scale = current_scale
@@ -97,10 +97,16 @@ def play_triads(tonic=False, scale=False):
     valid_notes = get_scale(tonic, scale)
     i = 0
     
-    print("Valid chords: ")
+    if sevenths is True:
+        print("Valid sevenths: ")
+    else:
+        print("Valid triads: ")
     
     for degree in valid_notes:
-        chords = [ valid_notes[i], valid_notes[(i+2)%(len(valid_notes)-1)], valid_notes[(i+4)%(len(valid_notes)-1)] ]
+        if sevenths is True:
+            chords = [ valid_notes[i], valid_notes[(i+2)%(len(valid_notes)-1)], valid_notes[(i+4)%(len(valid_notes)-1)], valid_notes[(i+6)%(len(valid_notes)-1)] ]
+        else:
+            chords = [ valid_notes[i], valid_notes[(i+2)%(len(valid_notes)-1)], valid_notes[(i+4)%(len(valid_notes)-1)] ]
         valid_chords.append(chords)
         print("\t"+" ".join(chords))
         i += 1
@@ -150,9 +156,11 @@ def play_selection(tonic=False, scale=False):
     play_scale(tonic, scale)
     
     
-random_b = Button(gui, text = "Randomize", command=randomize_selection).place(relx=0.2, rely=0.9, anchor=CENTER)
-replay_b = Button(gui, text = "Replay", command=play_selection).place(relx=0.6, rely=0.9, anchor=CENTER)
-triads_b = Button(gui, text = "Triads", command=play_triads).place(relx=0.8, rely=0.9, anchor=CENTER)
+random_b = Button(gui, text = "Randomize", command=randomize_selection).place(relx=0.2, rely=0.95, anchor=S)
+replay_b = Button(gui, text = "Replay", command=play_selection).place(relx=0.8, rely=0.95, anchor=S)
+
+triads_b = Button(gui, text = "Triads", command=play_all_chords).place(relx=0, rely=0.5, anchor=W)
+sevens_b = Button(gui, text = "Sevenths", command= lambda: play_all_chords(sevenths=True)).place(relx=0, rely=0.6, anchor=W)
 
 notes_b = list()
 drift = 0.02
