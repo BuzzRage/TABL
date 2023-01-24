@@ -7,7 +7,9 @@ This works with `Tkinter` for the GUI, and `fluidsynth` for the sound. You may n
 
 You can change the soundfont to another (by default, this program uses `TimGM6mb.sf2` which is light enough to be provided within a github repository).
 
-![User Interface](/TABL/gui-v24012023.png?raw=true "TABL interface")
+<p align="center">
+  <img src="./gui-v24012023.png" />
+</p>
 
 ## TO DO
 
