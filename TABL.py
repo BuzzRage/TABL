@@ -28,9 +28,9 @@ minor_harmonique_hex = format(0b101101011001, 'x')
 scales = {"major":            (major, major_hex), 
           "natural minor":    (minor_natural, minor_natural_hex), 
           "harmonic minor":   (minor_harmonique, minor_natural_hex)}
+
 current_tonic = "C"
 current_scale = "major"
-
 time_step = 0.4
 
 note_gui  = Label(gui, text="", bg="black", pady=30, font=("Helvetica", 40))
@@ -65,6 +65,18 @@ def get_scale(tonic, scale):
     else:
         print("Error: Invalid scale provided in get_scale()")
     return valid_notes
+
+def get_chords(note_list, sevenths=False):
+    valid_chords = list()
+    i = 0
+    for degree in note_list:
+        if sevenths is True:
+            chords = [ note_list[i], note_list[(i+2)%(len(note_list)-1)], note_list[(i+4)%(len(note_list)-1)], note_list[(i+6)%(len(note_list)-1)] ]
+        else:
+            chords = [ note_list[i], note_list[(i+2)%(len(note_list)-1)], note_list[(i+4)%(len(note_list)-1)] ]
+        valid_chords.append(chords)
+        i += 1
+    return valid_chords
     
 def play_scale(tonic, scale):
     valid_notes = get_scale(tonic, scale)
@@ -78,8 +90,8 @@ def play_scale(tonic, scale):
     gui.after(1, lambda: play_note(octave, valid_notes))
     gui.after((len(valid_notes)-1)*int(time_step*1000), lambda: switch_buttons(disable=False))
     
-def play_note(octave, scale,count=0):
-    if count == 8:
+def play_note(octave, scale, count=0):
+    if count == len(scale):
         return
     
     if scale[count][0] == 'C':
@@ -88,40 +100,64 @@ def play_note(octave, scale,count=0):
     fluidsynth.play_Note(Note(scale[count]+"-"+str(octave)))
     gui.after(int(time_step*1000), lambda: play_note(octave, scale, count+1))
     
+def play_random_prog(tonic=False, scale=False, sevenths=False, length=4):
+    if tonic is False or scale is False:
+        tonic = current_tonic
+        scale = current_scale
+    
+    valid_notes = get_scale(tonic, scale)
+    valid_chords = get_chords(valid_notes, sevenths)
+    update_gui(valid_notes)
+    
+    random_chords = list()
+    
+    for i in range(0,length):
+        random_chords.append(valid_chords[random.randint(0,len(valid_chords)-1)])
+    
+    if sevenths is True:
+        print("Random sevenths in {}: ".format(current_tonic+" "+current_scale))
+    else:
+        print("Random triads in {}: ".format(current_tonic+" "+current_scale))
+    for chords in random_chords:
+        print("\t"+" ".join(chords))
+    
+    play_gui.config(text="")
+    gui.after(1, lambda: switch_buttons(disable=True))
+    gui.after(1, lambda: play_chords(random_chords,random_mode=True))
+    gui.after((len(random_chords)-1)*1000, lambda: switch_buttons(disable=False))
+    
 def play_all_chords(tonic=False, scale=False, sevenths=False):
     if tonic is False or scale is False:
         tonic = current_tonic
         scale = current_scale
     
-    valid_chords = list()
     valid_notes = get_scale(tonic, scale)
-    i = 0
-    
+    valid_chords = get_chords(valid_notes, sevenths)
+    update_gui(valid_notes)
+               
     if sevenths is True:
-        print("Valid sevenths: ")
+        print("Sevenths in {}: ".format(current_tonic+" "+current_scale))
     else:
-        print("Valid triads: ")
-    
-    for degree in valid_notes:
-        if sevenths is True:
-            chords = [ valid_notes[i], valid_notes[(i+2)%(len(valid_notes)-1)], valid_notes[(i+4)%(len(valid_notes)-1)], valid_notes[(i+6)%(len(valid_notes)-1)] ]
-        else:
-            chords = [ valid_notes[i], valid_notes[(i+2)%(len(valid_notes)-1)], valid_notes[(i+4)%(len(valid_notes)-1)] ]
-        valid_chords.append(chords)
+        print("Triads in {}: ".format(current_tonic+" "+current_scale))
+    for chords in valid_chords:
         print("\t"+" ".join(chords))
-        i += 1
     
     gui.after(1, lambda: switch_buttons(disable=True))
     gui.after(1, lambda: play_chords(valid_chords))
-    gui.after((len(valid_notes)-1)*int(time_step*1000), lambda: switch_buttons(disable=False))
+    gui.after((len(valid_chords)-1)*int(time_step*1000), lambda: switch_buttons(disable=False))
         
-def play_chords(chords_list, count=0):
-    if count == 8:
+def play_chords(chords_list, count=0, random_mode=False):
+    if count == len(chords_list):
         return
     
-    play_gui.config(text=chords_list[count])
-    fluidsynth.play_NoteContainer(NoteContainer(chords_list[count]))
-    gui.after(int(time_step*1000), lambda: play_chords(chords_list,count+1))
+    if random_mode is True:
+        play_gui.config(text=play_gui["text"]+"\n"+" ".join(chords_list[count]))
+        fluidsynth.play_NoteContainer(NoteContainer(chords_list[count]))
+        gui.after(1000, lambda: play_chords(chords_list,count+1, random_mode))
+    else:
+        play_gui.config(text=chords_list[count])
+        fluidsynth.play_NoteContainer(NoteContainer(chords_list[count]))
+        gui.after(int(time_step*1000), lambda: play_chords(chords_list,count+1, random_mode))
     
 def update_gui(valid_notes):
     scale = current_scale
@@ -142,12 +178,29 @@ def randomize_selection():
 def note_selection(tonic):
     global current_tonic
     current_tonic = tonic
+    widgets = gui.winfo_children()
+    for widget in widgets:
+        if isinstance(widget, Button) and widget["text"] in notes_f:
+            if widget["text"] == tonic:
+                widget.config(bg="#FF0000", fg="#000000")
+            else:
+                if len(widget["text"]) == 1:
+                    widget.config(bg="#FFFFFF", fg="#000000")
+                else:
+                    widget.config(bg="#000000", fg="#FFFFFF")
     play_selection(current_tonic, current_scale)
     
 def scale_selection(scale):
     global current_scale
     current_scale = scale
-    play_selection(current_tonic, current_scale)
+    widgets = gui.winfo_children()
+    for widget in widgets:
+        if isinstance(widget, Button) and widget["text"] in list(scales.keys()):
+            if widget["text"] == scale:
+                widget.config(bg="#FF0000", fg="#000000")
+            else:
+                widget.config(bg="#FF8000", fg="#000000")
+
     
 def play_selection(tonic=False, scale=False):
     if tonic is False or scale is False:
@@ -161,11 +214,16 @@ replay_b = Button(gui, text = "Replay", command=play_selection).place(relx=0.8, 
 
 triads_b = Button(gui, text = "Triads", command=play_all_chords).place(relx=0, rely=0.5, anchor=W)
 sevens_b = Button(gui, text = "Sevenths", command= lambda: play_all_chords(sevenths=True)).place(relx=0, rely=0.6, anchor=W)
+rdprog_b = Button(gui, text = "Random prog", command= lambda: play_random_prog(sevenths=False)).place(relx=0, rely=0.7, anchor=W)
 
 notes_b = list()
 drift = 0.02
 for note in notes:
     callback = Callback(note_selection, note)
+    if note == current_tonic:
+        notes_b.append(Button(gui, bg='#FF0000', fg ='#000000', height=2, width=1, text = note, command=callback).place(relx=drift, rely=0, anchor=NW))
+        drift += 0.08
+        continue
     if len(note) == 1:
         notes_b.append(Button(gui, bg='#FFFFFF', fg ='#000000', height=2, width=1, text = note, command=callback).place(relx=drift, rely=0, anchor=NW))
     else:
@@ -178,8 +236,10 @@ for scale in list(scales.keys()):
     callback = Callback(scale_selection, scale)
     scales_b.append(Button(gui, text = scale, command=callback).place(relx=1, rely=drift, anchor=E))
     drift += 0.1
-note_gui.place(relx=0.5, rely=0.4, anchor=CENTER)
+note_gui.place(relx=0.5, rely=0.3, anchor=CENTER)
 scale_gui.place(relx=0.5, rely=0.8, anchor=CENTER)
-play_gui.place(relx=0.5, rely=0.7, anchor=CENTER)
+play_gui.place(relx=0.5, rely=0.7, anchor=S)
+
+scale_selection(current_scale)
 
 gui.mainloop()

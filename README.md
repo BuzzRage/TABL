@@ -11,10 +11,11 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
 ## TO DO
 
 * Features:
-    * Generate a random chord progression that loops
+    * Make a loop on selected chord progression
     * Let the user choose the time step
     * Add a button to see all triads
     * Add a button to see all sevenths
+    * Make the replay button replay the la thing played (note only the current scale, but also last chord progression)
     
 * GUI:
     * Improve scale display by putting a tabulation for each semitone not valid in a scale
@@ -24,9 +25,7 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
     
 * Music engine:
     * Build a transcoder from binary representation of tones into actual scale (i.e. 101011010101 = Major)
-    * Fix octave drift whan playing triads
-
-
+    * Fix octave drift when playing triads
 
 
 ## Done
@@ -40,6 +39,7 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
     * Add a button to listen all triads of the current scale and last selected tonic
     * Let the user choose a scale
     * Add a button to listen all sevenths
+    * Generate a random chord progression
 
 * GUI:
     * Make the tonic change the color (e.g. A = 440 Hz, add 0x440 to the hexacode of a scale)
@@ -47,6 +47,7 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
     * Print the current chord being played
     * Fix screen synchronization with event
     * Block all buttons when music play
+    * Indicate which tonic and scale are currently selected
     
 * Music engine:
     * Build a function that play notes
