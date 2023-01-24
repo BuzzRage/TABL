@@ -9,7 +9,7 @@ from mingus.containers import *
 from mingus.midi import fluidsynth
 
 gui =Tk()
-gui.geometry("400x400")
+gui.geometry("500x500")
 gui.title("Tool-Assisted Backing Loop")
 
 # You may want to change the soundfont file or the audio driver !
@@ -76,7 +76,7 @@ def play_scale(tonic, scale):
     
     gui.after(1, lambda: switch_buttons(disable=True))
     gui.after(1, lambda: play_note(octave, valid_notes))
-    gui.after(len(valid_notes)*int(time_step*1000), lambda: switch_buttons(disable=False))
+    gui.after((len(valid_notes)-1)*int(time_step*1000), lambda: switch_buttons(disable=False))
     
 def play_note(octave, scale,count=0):
     if count == 8:
@@ -107,7 +107,7 @@ def play_triads(tonic=False, scale=False):
     
     gui.after(1, lambda: switch_buttons(disable=True))
     gui.after(1, lambda: play_chords(valid_chords))
-    gui.after(len(valid_chords)*int(time_step*1000), lambda: switch_buttons(disable=False))
+    gui.after((len(valid_notes)-1)*int(time_step*1000), lambda: switch_buttons(disable=False))
         
 def play_chords(chords_list, count=0):
     if count == 8:
@@ -133,9 +133,14 @@ def randomize_selection():
     current_scale = random.choice(list(scales.keys()))
     play_selection(current_tonic, current_scale)
     
-def user_selection(tonic):
+def note_selection(tonic):
     global current_tonic
     current_tonic = tonic
+    play_selection(current_tonic, current_scale)
+    
+def scale_selection(scale):
+    global current_scale
+    current_scale = scale
     play_selection(current_tonic, current_scale)
     
 def play_selection(tonic=False, scale=False):
@@ -148,16 +153,23 @@ def play_selection(tonic=False, scale=False):
 random_b = Button(gui, text = "Randomize", command=randomize_selection).place(relx=0.2, rely=0.9, anchor=CENTER)
 replay_b = Button(gui, text = "Replay", command=play_selection).place(relx=0.6, rely=0.9, anchor=CENTER)
 triads_b = Button(gui, text = "Triads", command=play_triads).place(relx=0.8, rely=0.9, anchor=CENTER)
+
 notes_b = list()
-drift = 0.11
+drift = 0.02
 for note in notes:
-    callback = Callback(user_selection, note)
+    callback = Callback(note_selection, note)
     if len(note) == 1:
-        notes_b.append(Button(gui, bg='#FFFFFF', fg ='#000000', text = note, command=callback).place(relx=drift, rely=0.01, anchor=NE))
+        notes_b.append(Button(gui, bg='#FFFFFF', fg ='#000000', height=2, width=1, text = note, command=callback).place(relx=drift, rely=0, anchor=NW))
     else:
-        notes_b.append(Button(gui, bg='#000000', fg ='#FFFFFF', text = note, command=callback).place(relx=drift, rely=0.12, anchor=NE))
+        notes_b.append(Button(gui, bg='#000000', fg ='#FFFFFF', width=1, text = note, command=callback).place(relx=drift, rely=0, anchor=NW))
     drift += 0.08
 
+scales_b = list()
+drift = 0.5
+for scale in list(scales.keys()):
+    callback = Callback(scale_selection, scale)
+    scales_b.append(Button(gui, text = scale, command=callback).place(relx=1, rely=drift, anchor=E))
+    drift += 0.1
 note_gui.place(relx=0.5, rely=0.4, anchor=CENTER)
 scale_gui.place(relx=0.5, rely=0.8, anchor=CENTER)
 play_gui.place(relx=0.5, rely=0.7, anchor=CENTER)
