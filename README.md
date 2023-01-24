@@ -7,6 +7,7 @@ This works with `Tkinter` for the GUI, and `fluidsynth` for the sound. You may n
 
 You can change the soundfont to another (by default, this program uses `TimGM6mb.sf2` which is light enough to be provided within a github repository).
 
+![User Interface](/TABL/gui-v24012023.png?raw=true "TABL interface")
 
 ## TO DO
 
@@ -15,7 +16,7 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
     * Let the user choose the time step
     * Add a button to see all triads
     * Add a button to see all sevenths
-    * Make the replay button replay the la thing played (note only the current scale, but also last chord progression)
+    * Make the replay button replay the last thing played (note only the current scale, but also last chord progression)
     
 * GUI:
     * Improve scale display by putting a tabulation for each semitone not valid in a scale
@@ -40,7 +41,8 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
     * Let the user choose a scale
     * Add a button to listen all sevenths
     * Generate a random chord progression
-
+    * Let the user choose instrument with a slider
+    
 * GUI:
     * Make the tonic change the color (e.g. A = 440 Hz, add 0x440 to the hexacode of a scale)
     * Print the current note being played

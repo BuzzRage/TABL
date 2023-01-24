@@ -13,7 +13,10 @@ gui.geometry("500x500")
 gui.title("Tool-Assisted Backing Loop")
 
 # You may want to change the soundfont file or the audio driver !
+# In that case, you may also want to change the content of "instruments" variable
 fluidsynth.init("TimGM6mb.sf2", "pulseaudio")
+fluidsynth.set_instrument(1, 5, 0)
+instruments = range(0,127)
 
 notes = ["C","C#","D","Eb","E","F","F#","G","Ab","A","Bb","B"]
 notes_f = ["C","C#","Db","D","D#","Eb","E","Fb","E#","F","F#","Gb","G","G#","Ab","A","A#","Bb","B","Cb","B#"]
@@ -45,6 +48,14 @@ class Callback:
 
     def __call__(self, *args):
         return self.__callback (*(self.__firstArgs + args))
+
+def pick_instrument(instru=-1):
+    fluidsynth.stop_everything()
+    if instru != 0:
+        fluidsynth.set_instrument(1, random.choice(instruments), 0)
+    else:
+        fluidsynth.set_instrument(1, instru, 0)
+    
 
 def switch_buttons(disable=False):
     widgets = gui.winfo_children()
@@ -166,6 +177,13 @@ def update_gui(valid_notes):
     gui.configure(bg="#"+hexa_code)
     note_gui.config(bg="#"+hexa_code, text=valid_notes[0]+"\n"+scale)
     scale_gui.config(text=" ".join(valid_notes), bg="#"+hexa_code)
+    
+    widgets = gui.winfo_children()
+    for widget in widgets:
+        if isinstance(widget, Scale):
+            widget.config(bg="#"+hexa_code, fg="#FFFFFF", troughcolor="#000000")
+        if isinstance(widget, Label) and widget["text"] == "Instrument":
+            widget.config(bg="#"+hexa_code, fg="#FFFFFF")
     play_gui.config(bg="#"+hexa_code)
     
 def randomize_selection():
@@ -173,6 +191,7 @@ def randomize_selection():
     global current_scale
     current_tonic = random.choice(notes)
     current_scale = random.choice(list(scales.keys()))
+    pick_instrument(-1)
     play_selection(current_tonic, current_scale)
     
 def note_selection(tonic):
@@ -209,8 +228,11 @@ def play_selection(tonic=False, scale=False):
     play_scale(tonic, scale)
     
     
-random_b = Button(gui, text = "Randomize", command=randomize_selection).place(relx=0.2, rely=0.95, anchor=S)
-replay_b = Button(gui, text = "Replay", command=play_selection).place(relx=0.8, rely=0.95, anchor=S)
+random_b = Button(gui, text = "Randomize", command=randomize_selection).place(relx=0.05, rely=0.95, anchor=SW)
+replay_b = Button(gui, text = "Replay", command=play_selection).place(relx=0.75, rely=0.95, anchor=SW)
+
+instru_t = Label(gui, text="Instrument", bg="black", fg="white", font=("Helvetica", 10)).place(relx=0.5, rely=0.91, anchor=S)
+instru_s = Scale(gui, from_=0, to=127, showvalue=0, bg="#000000", relief=SUNKEN, resolution = 1, orient=HORIZONTAL, command=pick_instrument, length=200).place(relx=0.5, rely=0.95, anchor=S)
 
 triads_b = Button(gui, text = "Triads", command=play_all_chords).place(relx=0, rely=0.5, anchor=W)
 sevens_b = Button(gui, text = "Sevenths", command= lambda: play_all_chords(sevenths=True)).place(relx=0, rely=0.6, anchor=W)
