@@ -18,13 +18,14 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
     * Let the user choose the time step
     * Add a button to see all triads
     * Add a button to see all sevenths
-    * Make the replay button replay the last thing played (note only the current scale, but also last chord progression)
     
 * GUI:
     * Improve scale display by putting a tabulation for each semitone not valid in a scale
     * When playing a chords, change color of played notes in the scale label
     * Make fontground color reverse to background color
     * Gridify the layout of widget
+    * Auto-reconfigure the layout to correspond to what is played when pressing replay button (determine scale and tonic to refresh layout)
+    * Design a background (like VST ones ?)
     
 * Music engine:
     * Build a transcoder from binary representation of tones into actual scale (i.e. 101011010101 = Major)
@@ -44,6 +45,7 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
     * Add a button to listen all sevenths
     * Generate a random chord progression
     * Let the user choose instrument with a slider
+    * Make the replay button replay the last thing played (note only the current scale, but also last chord progression)
     
 * GUI:
     * Make the tonic change the color (e.g. A = 440 Hz, add 0x440 to the hexacode of a scale)

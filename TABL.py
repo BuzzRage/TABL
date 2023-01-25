@@ -34,6 +34,7 @@ scales = {"major":            (major, major_hex),
 
 current_tonic = "C"
 current_scale = "major"
+last_prog = None
 time_step = 0.4
 
 note_gui  = Label(gui, text="", bg="black", pady=30, font=("Helvetica", 40))
@@ -132,6 +133,7 @@ def play_random_prog(tonic=False, scale=False, sevenths=False, length=4):
     for chords in random_chords:
         print("\t"+" ".join(chords))
     
+    global last_prog; last_prog = random_chords
     play_gui.config(text="")
     gui.after(1, lambda: switch_buttons(disable=True))
     gui.after(1, lambda: play_chords(random_chords,random_mode=True))
@@ -220,6 +222,14 @@ def scale_selection(scale):
             else:
                 widget.config(bg="#FF8000", fg="#000000")
 
+def replay_last():
+    if last_prog is not None:
+        play_gui.config(text="")
+        gui.after(1, lambda: switch_buttons(disable=True))
+        gui.after(1, lambda: play_chords(last_prog,random_mode=True))
+        gui.after((len(last_prog)-1)*1000, lambda: switch_buttons(disable=False))
+    else:
+        play_selection()
     
 def play_selection(tonic=False, scale=False):
     if tonic is False or scale is False:
@@ -229,7 +239,7 @@ def play_selection(tonic=False, scale=False):
     
     
 random_b = Button(gui, text = "Randomize", command=randomize_selection).place(relx=0.05, rely=0.95, anchor=SW)
-replay_b = Button(gui, text = "Replay", command=play_selection).place(relx=0.75, rely=0.95, anchor=SW)
+replay_b = Button(gui, text = "Replay", command=replay_last).place(relx=0.75, rely=0.95, anchor=SW)
 
 instru_t = Label(gui, text="Instrument", bg="black", fg="white", font=("Helvetica", 10)).place(relx=0.5, rely=0.91, anchor=S)
 instru_s = Scale(gui, from_=0, to=127, showvalue=0, bg="#000000", relief=SUNKEN, resolution = 1, orient=HORIZONTAL, command=pick_instrument, length=200).place(relx=0.5, rely=0.95, anchor=S)
