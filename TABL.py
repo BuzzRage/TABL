@@ -35,6 +35,8 @@ scales = {"major":            (major, major_hex),
 current_tonic = "C"
 current_scale = "major"
 last_prog = None
+loop = False
+loop_count = 0
 time_step = 0.4
 
 note_gui  = Label(gui, text="", bg="black", pady=30, font=("Helvetica", 40))
@@ -61,7 +63,16 @@ def pick_instrument(instru=-1):
 def switch_buttons(disable=False):
     widgets = gui.winfo_children()
     for widget in widgets:
-        if isinstance(widget, Button):
+        if isinstance(widget, Button) and widget["text"] not in ["Loop","Stop"]:
+            if disable is True:
+                widget.config(state="disabled")
+            else:
+                widget.config(state="normal")
+                
+def loop_button(disable=False):
+    widgets = gui.winfo_children()
+    for widget in widgets:
+        if isinstance(widget, Button) and widget["text"] in ["Loop","Stop"]:
             if disable is True:
                 widget.config(state="disabled")
             else:
@@ -134,10 +145,13 @@ def play_random_prog(tonic=False, scale=False, sevenths=False, length=4):
         print("\t"+" ".join(chords))
     
     global last_prog; last_prog = random_chords
+    
     play_gui.config(text="")
     gui.after(1, lambda: switch_buttons(disable=True))
+    gui.after(1, lambda: loop_button(disable=True))
     gui.after(1, lambda: play_chords(random_chords,random_mode=True))
     gui.after((len(random_chords)-1)*1000, lambda: switch_buttons(disable=False))
+    gui.after((len(random_chords)-1)*1000, lambda: loop_button(disable=False))
     
 def play_all_chords(tonic=False, scale=False, sevenths=False):
     if tonic is False or scale is False:
@@ -222,14 +236,48 @@ def scale_selection(scale):
             else:
                 widget.config(bg="#FF8000", fg="#000000")
 
-def replay_last():
-    if last_prog is not None:
-        play_gui.config(text="")
-        gui.after(1, lambda: switch_buttons(disable=True))
-        gui.after(1, lambda: play_chords(last_prog,random_mode=True))
-        gui.after((len(last_prog)-1)*1000, lambda: switch_buttons(disable=False))
+def replay_last(count=-1):        
+    if loop is True:
+        global loop_count; loop_count=count
+        widgets = gui.winfo_children()
+        for widget in widgets:
+            if isinstance(widget, Button) and widget["text"] == "Stop":
+                if count%(len(last_prog)) == 0:
+                    play_gui.config(text="")
+                    gui.after(1, lambda: switch_buttons(disable=True))
+                    gui.after(1, lambda: play_chords(last_prog,random_mode=True))
+                    gui.after((len(last_prog)-1)*1000, lambda: switch_buttons(disable=False))
+                gui.after(1000, lambda: replay_last(count+1))
+    elif loop is True and count == -1:
+        if last_prog is not None:
+            print("wow: "+ str(count))
+            play_gui.config(text="")
+            gui.after(1, lambda: switch_buttons(disable=True))
+            gui.after(1, lambda: play_chords(last_prog,random_mode=True))
+            gui.after((len(last_prog)-1)*1000, lambda: switch_buttons(disable=False))
+        else:
+            play_selection()
+            
+def loop_last():
+    global loop;
+    if last_prog is None:
+        return
     else:
-        play_selection()
+        widgets = gui.winfo_children()
+        for widget in widgets:
+            if isinstance(widget, Button):
+                if widget["text"] == "Loop":
+                    widget.config(bg="#00FF00", fg="#000000")
+                    widget["text"] = "Stop"
+                    loop = True
+                    replay_last(count=0)
+                elif widget["text"] == "Stop":
+                    gui.after(1, lambda: loop_button(disable=True))
+                    widget.config(bg="#FF0000", fg="#000000")
+                    loop = False
+                    widget["text"] = "Loop"
+                    gui.after((len(last_prog)-(loop_count)%len(last_prog))*1000, lambda: loop_button(disable=False))
+
     
 def play_selection(tonic=False, scale=False):
     if tonic is False or scale is False:
@@ -239,7 +287,8 @@ def play_selection(tonic=False, scale=False):
     
     
 random_b = Button(gui, text = "Randomize", command=randomize_selection).place(relx=0.05, rely=0.95, anchor=SW)
-replay_b = Button(gui, text = "Replay", command=replay_last).place(relx=0.75, rely=0.95, anchor=SW)
+replay_b = Button(gui, text = "Replay", command=replay_last).place(relx=0.72, rely=0.95, anchor=SW)
+loop_b   = Button(gui, text = "Loop", state="disabled", command=loop_last, bg="#FF0000", fg="#000000").place(relx=1, rely=0.95, anchor=SE)
 
 instru_t = Label(gui, text="Instrument", bg="black", fg="white", font=("Helvetica", 10)).place(relx=0.5, rely=0.91, anchor=S)
 instru_s = Scale(gui, from_=0, to=127, showvalue=0, bg="#000000", relief=SUNKEN, resolution = 1, orient=HORIZONTAL, command=pick_instrument, length=200).place(relx=0.5, rely=0.95, anchor=S)

@@ -26,6 +26,8 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
     * Gridify the layout of widget
     * Auto-reconfigure the layout to correspond to what is played when pressing replay button (determine scale and tonic to refresh layout)
     * Design a background (like VST ones ?)
+    * Fix the state delay after stopping a loop
+    * When changing scale, automatically print the new valid notes
     
 * Music engine:
     * Build a transcoder from binary representation of tones into actual scale (i.e. 101011010101 = Major)
@@ -46,7 +48,8 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
     * Generate a random chord progression
     * Let the user choose instrument with a slider
     * Make the replay button replay the last thing played (note only the current scale, but also last chord progression)
-    
+    * Make a loop on last chord progression
+
 * GUI:
     * Make the tonic change the color (e.g. A = 440 Hz, add 0x440 to the hexacode of a scale)
     * Print the current note being played
