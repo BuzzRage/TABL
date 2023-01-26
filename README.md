@@ -8,7 +8,7 @@ This works with `Tkinter` for the GUI, and `fluidsynth` for the sound. You may n
 You can change the soundfont to another (by default, this program uses `TimGM6mb.sf2` which is light enough to be provided within a github repository).
 
 <p align="center">
-  <img src="./gui-v25012023.png" />
+  <img src="./gui.png" />
 </p>
 
 ## TO DO
