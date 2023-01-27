@@ -26,7 +26,6 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
     * Gridify the layout of widget
     * Auto-reconfigure the layout to correspond to what is played when pressing replay button (determine scale and tonic to refresh layout)
     * Design a background (like VST ones ?)
-    * Fix the state delay after stopping a loop
     
 * Music engine:
     * Build a transcoder from binary representation of tones into actual scale (i.e. 101011010101 = Major)
@@ -57,9 +56,11 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
     * Block all buttons when music play
     * Indicate which tonic and scale are currently selected
     * When changing scale, automatically print the new valid notes
+    * Fix the state delay after stopping a loop
     
 * Music engine:
     * Build a function that play notes
     * Build a function that play chords
     * Build a function that play scale
     * Build a function that play all triads within a given scale
+    * Make all times affected by time_step variable and stop notes after a while (useful for some instruments with high sustain)
