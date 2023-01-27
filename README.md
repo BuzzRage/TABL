@@ -27,7 +27,6 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
     * Auto-reconfigure the layout to correspond to what is played when pressing replay button (determine scale and tonic to refresh layout)
     * Design a background (like VST ones ?)
     * Fix the state delay after stopping a loop
-    * When changing scale, automatically print the new valid notes
     
 * Music engine:
     * Build a transcoder from binary representation of tones into actual scale (i.e. 101011010101 = Major)
@@ -57,6 +56,7 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
     * Fix screen synchronization with event
     * Block all buttons when music play
     * Indicate which tonic and scale are currently selected
+    * When changing scale, automatically print the new valid notes
     
 * Music engine:
     * Build a function that play notes

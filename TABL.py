@@ -78,7 +78,11 @@ def loop_button(disable=False):
             else:
                 widget.config(state="normal")
 
-def get_scale(tonic, scale):
+def get_scale(tonic=None, scale=None):
+    if tonic is None or scale is None:
+        tonic = current_tonic
+        scale = current_scale
+    
     if scale == "major":
         valid_notes = s.Major(tonic).ascending()
     elif scale == "natural minor":
@@ -123,8 +127,8 @@ def play_note(octave, scale, count=0):
     fluidsynth.play_Note(Note(scale[count]+"-"+str(octave)))
     gui.after(int(time_step*1000), lambda: play_note(octave, scale, count+1))
     
-def play_random_prog(tonic=False, scale=False, sevenths=False, length=4):
-    if tonic is False or scale is False:
+def play_random_prog(tonic=None, scale=None, sevenths=False, length=4):
+    if tonic is None or scale is None:
         tonic = current_tonic
         scale = current_scale
     
@@ -153,8 +157,8 @@ def play_random_prog(tonic=False, scale=False, sevenths=False, length=4):
     gui.after((len(random_chords)-1)*1000, lambda: switch_buttons(disable=False))
     gui.after((len(random_chords)-1)*1000, lambda: loop_button(disable=False))
     
-def play_all_chords(tonic=False, scale=False, sevenths=False):
-    if tonic is False or scale is False:
+def play_all_chords(tonic=None, scale=None, sevenths=False):
+    if tonic is None or scale is None:
         tonic = current_tonic
         scale = current_scale
     
@@ -200,7 +204,7 @@ def update_gui(valid_notes):
             widget.config(bg="#"+hexa_code, fg="#FFFFFF", troughcolor="#000000")
         if isinstance(widget, Label) and widget["text"] == "Instrument":
             widget.config(bg="#"+hexa_code, fg="#FFFFFF")
-    play_gui.config(bg="#"+hexa_code)
+    play_gui.config(bg="#"+hexa_code, text="")
     
 def randomize_selection():
     global current_tonic
@@ -235,6 +239,7 @@ def scale_selection(scale):
                 widget.config(bg="#FF0000", fg="#000000")
             else:
                 widget.config(bg="#FF8000", fg="#000000")
+    update_gui(get_scale())
 
 def replay_last(count=-1):        
     if loop is True:
@@ -248,7 +253,7 @@ def replay_last(count=-1):
                     gui.after(1, lambda: play_chords(last_prog,random_mode=True))
                     gui.after((len(last_prog)-1)*1000, lambda: switch_buttons(disable=False))
                 gui.after(1000, lambda: replay_last(count+1))
-    elif loop is True and count == -1:
+    elif loop is False and count == -1:
         if last_prog is not None:
             print("wow: "+ str(count))
             play_gui.config(text="")
@@ -279,8 +284,8 @@ def loop_last():
                     gui.after((len(last_prog)-(loop_count)%len(last_prog))*1000, lambda: loop_button(disable=False))
 
     
-def play_selection(tonic=False, scale=False):
-    if tonic is False or scale is False:
+def play_selection(tonic=None, scale=None):
+    if tonic is None or scale is None:
         tonic = current_tonic
         scale = current_scale
     play_scale(tonic, scale)
