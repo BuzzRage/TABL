@@ -18,19 +18,24 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
     * Let the user choose the time step
     * Add a button to see all triads
     * Add a button to see all sevenths
+    * Let the user design its own scale
+    * Include circle of fifths and other graphical / pedagogical tools
     
 * GUI:
     * Improve scale display by putting a tabulation for each semitone not valid in a scale
     * When playing a chords, change color of played notes in the scale label
     * Make fontground color reverse to background color
     * Gridify the layout of widget
-    * Auto-reconfigure the layout to correspond to what is played when pressing replay button (determine scale and tonic to refresh layout)
     * Design a background (like VST ones ?)
+    * Disable loop button when playing something else
     
 * Music engine:
     * Build a transcoder from binary representation of tones into actual scale (i.e. 101011010101 = Major)
     * Fix octave drift when playing triads
-
+    * Save instrument in `last_prog` variable
+    * Fix sound delay after ending loop (it doesn't last as long as others)
+    * Include other scales
+    * Include other chords ( 7, dim, aug, Ø, Δ, 6 etc.. )
 
 ## Done
 
@@ -57,10 +62,12 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
     * Indicate which tonic and scale are currently selected
     * When changing scale, automatically print the new valid notes
     * Fix the state delay after stopping a loop
+    * Centralize widget handling in `update_gui()`
+    * Auto-reconfigure the layout to correspond to what is played when pressing replay or loop button (determine scale and tonic to refresh layout)
     
 * Music engine:
     * Build a function that play notes
     * Build a function that play chords
     * Build a function that play scale
     * Build a function that play all triads within a given scale
-    * Make all times affected by time_step variable and stop notes after a while (useful for some instruments with high sustain)
+    * Make all times affected by `time_step` variable and stop notes after a while (useful for some instruments with high sustain)

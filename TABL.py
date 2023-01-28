@@ -149,7 +149,7 @@ def play_random_prog(tonic=None, scale=None, sevenths=False, length=4):
     for chords in random_chords:
         print("\t"+" ".join(chords))
     
-    global last_prog; last_prog = random_chords
+    global last_prog; last_prog = {"chords": random_chords, "tonic": tonic, "scale": scale}
     
     gui.after(1, lambda: switch_buttons(disable=True))
     gui.after(1, lambda: loop_button(disable=True))
@@ -188,12 +188,10 @@ def play_chords(chords_list, count=0, random_mode=False):
     gui.after(int(time_step*1000), lambda: play_chords(chords_list,count+1, random_mode))
     
 def update_gui(valid_notes):
-    scale = current_scale
+    tonic = current_tonic
+    scale = current_scale 
+    play_text = ""
     hexa_code = hex(int(scales[scale][1], 16) + int(notes_dict[valid_notes[0]]))[2:]
-
-    gui.configure(bg="#"+hexa_code)
-    note_gui.config(bg="#"+hexa_code, text=valid_notes[0]+"\n"+scale)
-    scale_gui.config(text=" ".join(valid_notes), bg="#"+hexa_code)
     
     widgets = gui.winfo_children()
     for widget in widgets:
@@ -201,7 +199,34 @@ def update_gui(valid_notes):
             widget.config(bg="#"+hexa_code, fg="#FFFFFF", troughcolor="#000000")
         if isinstance(widget, Label) and widget["text"] == "Instrument":
             widget.config(bg="#"+hexa_code, fg="#FFFFFF")
-    play_gui.config(bg="#"+hexa_code, text="")
+        if isinstance(widget, Button):
+            if widget["text"] in notes_f:
+                if widget["text"] == tonic:
+                    widget.config(bg="#FF0000", fg="#000000")
+                else:
+                    if len(widget["text"]) == 1:
+                        widget.config(bg="#FFFFFF", fg="#000000")
+                    else:
+                        widget.config(bg="#000000", fg="#FFFFFF")
+                        
+            elif widget["text"] in list(scales.keys()):
+                if widget["text"] == scale:
+                    widget.config(bg="#FF0000", fg="#000000")
+                else:
+                    widget.config(bg="#FF8000", fg="#000000")
+                    
+            elif widget["text"] in ["Loop", "Stop"]:
+                if loop is True:
+                    widget.config(bg="#00FF00", fg="#000000")
+                    widget["text"] = "Stop"
+                elif loop is False:
+                    widget.config(bg="#FF0000", fg="#000000")
+                    widget["text"] = "Loop"
+            
+    gui.configure(bg="#"+hexa_code)
+    note_gui.config(bg="#"+hexa_code, text=valid_notes[0]+"\n"+scale)
+    scale_gui.config(text=" ".join(valid_notes), bg="#"+hexa_code)
+    play_gui.config(bg="#"+hexa_code, text=play_text)
     gui.after(1, fluidsynth.stop_everything)
     
 def randomize_selection():
@@ -215,75 +240,64 @@ def randomize_selection():
 def note_selection(tonic):
     global current_tonic
     current_tonic = tonic
-    widgets = gui.winfo_children()
-    for widget in widgets:
-        if isinstance(widget, Button) and widget["text"] in notes_f:
-            if widget["text"] == tonic:
-                widget.config(bg="#FF0000", fg="#000000")
-            else:
-                if len(widget["text"]) == 1:
-                    widget.config(bg="#FFFFFF", fg="#000000")
-                else:
-                    widget.config(bg="#000000", fg="#FFFFFF")
     play_selection(current_tonic, current_scale)
     
 def scale_selection(scale):
     global current_scale
     current_scale = scale
-    widgets = gui.winfo_children()
-    for widget in widgets:
-        if isinstance(widget, Button) and widget["text"] in list(scales.keys()):
-            if widget["text"] == scale:
-                widget.config(bg="#FF0000", fg="#000000")
-            else:
-                widget.config(bg="#FF8000", fg="#000000")
     update_gui(get_scale())
 
 def replay_last(count=-1):        
     if loop is True:
-        global loop_count; loop_count=count
-        widgets = gui.winfo_children()
-        for widget in widgets:
-            if isinstance(widget, Button) and widget["text"] == "Stop":
-                if count%(len(last_prog)) == 0:
-                    gui.after(1, fluidsynth.stop_everything)
-                    play_gui.config(text="")
-                    gui.after(1, lambda: play_chords(last_prog,random_mode=True))
-                gui.after(int(time_step*1000), lambda: replay_last(count+1))
+        global loop_count; loop_count=count        
+        if count%(len(last_prog["chords"])) == 0:
+            gui.after(1, fluidsynth.stop_everything)
+            play_gui.config(text="")
+            gui.after(1, lambda: play_chords(last_prog["chords"],random_mode=True))
+        gui.after(int(time_step*1000), lambda: replay_last(count+1))
     elif loop is False and count == -1:
         if last_prog is not None:
-            play_gui.config(text="")
+            global current_tonic; global current_scale;
+            current_tonic = last_prog["tonic"]
+            current_scale = last_prog["scale"]
+            update_gui(get_scale(current_tonic, current_scale))
             gui.after(1, fluidsynth.stop_everything)
             gui.after(1, lambda: switch_buttons(disable=True))
-            gui.after(1, lambda: play_chords(last_prog,random_mode=True))
-            gui.after((len(last_prog))*int(time_step*1000), lambda: switch_buttons(disable=False))
-            gui.after((len(last_prog)+2)*int((time_step)*1000), fluidsynth.stop_everything)
+            gui.after(1, lambda: play_chords(last_prog["chords"],random_mode=True))
+            gui.after((len(last_prog["chords"]))*int(time_step*1000), lambda: switch_buttons(disable=False))
+            gui.after((len(last_prog["chords"])+2)*int((time_step)*1000), fluidsynth.stop_everything)
         else:
             play_selection()
-            
+         
+def stop_loop():
+    loop_button(disable=False)
+    switch_buttons(disable=False)
+    play_text = play_gui["text"]
+    global current_tonic; global current_scale;
+    current_tonic = last_prog["tonic"]
+    current_scale = last_prog["scale"]
+    update_gui(get_scale(current_tonic, current_scale))
+    play_gui.config(text=play_text)
+     
 def loop_last():
-    global loop;
-    if last_prog is None:
+    global loop; global current_tonic; global current_scale;
+    
+    if last_prog["chords"] is None:
         return
+    
+    if not loop:
+        loop = True
+        global current_tonic; global current_scale;
+        current_tonic = last_prog["tonic"]
+        current_scale = last_prog["scale"]
+        update_gui(get_scale(current_tonic, current_scale))
+        gui.after(1, lambda: switch_buttons(disable=True))
+        replay_last(count=0)
     else:
-        widgets = gui.winfo_children()
-        for widget in widgets:
-            if isinstance(widget, Button):
-                if widget["text"] == "Loop":
-                    widget.config(bg="#00FF00", fg="#000000")
-                    widget["text"] = "Stop"
-                    loop = True
-                    gui.after(1, lambda: switch_buttons(disable=True))
-                    replay_last(count=0)
-                elif widget["text"] == "Stop":
-                    gui.after(1, lambda: loop_button(disable=True))
-                    widget.config(bg="#FF0000", fg="#000000")
-                    loop = False
-                    widget["text"] = "Loop"
-                    gui.after((len(last_prog)-(loop_count)%len(last_prog))*int(time_step*1000), lambda: loop_button(disable=False))
-                    gui.after((len(last_prog)-(loop_count)%len(last_prog))*int(time_step*1000), lambda: switch_buttons(disable=False))
-                    gui.after(((len(last_prog)+2)-(loop_count)%len(last_prog))*int(time_step*1000), fluidsynth.stop_everything)
-
+        loop = False
+        gui.after(1, lambda: loop_button(disable=True))
+        gui.after((len(last_prog["chords"])-(loop_count)%len(last_prog["chords"]))*int(time_step*1000), stop_loop)
+        gui.after(((len(last_prog["chords"])+2)-(loop_count)%len(last_prog["chords"]))*int(time_step*1000), fluidsynth.stop_everything)
     
 def play_selection(tonic=None, scale=None):
     if tonic is None or scale is None:
