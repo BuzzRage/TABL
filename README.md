@@ -36,6 +36,7 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
     * Fix sound delay after ending loop (it doesn't last as long as others)
     * Include other scales
     * Include other chords ( 7, dim, aug, Ø, Δ, 6 etc.. )
+    * Fix the time synchronization when `time_step` is changed while playing
 
 ## Done
 

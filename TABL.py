@@ -52,6 +52,12 @@ class Callback:
     def __call__(self, *args):
         return self.__callback (*(self.__firstArgs + args))
 
+def set_time_step(t_step=-1):
+    global time_step;
+    time_step = float(t_step)
+    print(time_step)
+    print(type(time_step))
+    
 def pick_instrument(instru=-1):
     fluidsynth.stop_everything()
     if instru != 0:
@@ -196,7 +202,8 @@ def update_gui(valid_notes):
     widgets = gui.winfo_children()
     for widget in widgets:
         if isinstance(widget, Scale):
-            widget.config(bg="#"+hexa_code, fg="#FFFFFF", troughcolor="#000000")
+            if widget["resolution"] == 1:
+                widget.config(bg="#"+hexa_code, fg="#FFFFFF", troughcolor="#000000")
         if isinstance(widget, Label) and widget["text"] == "Instrument":
             widget.config(bg="#"+hexa_code, fg="#FFFFFF")
         if isinstance(widget, Button):
@@ -312,6 +319,8 @@ loop_b   = Button(gui, text = "Loop", state="disabled", command=loop_last, bg="#
 
 instru_t = Label(gui, text="Instrument", bg="black", fg="white", font=("Helvetica", 10)).place(relx=0.5, rely=0.91, anchor=S)
 instru_s = Scale(gui, from_=0, to=127, showvalue=0, bg="#000000", relief=SUNKEN, resolution = 1, orient=HORIZONTAL, command=pick_instrument, length=200).place(relx=0.5, rely=0.95, anchor=S)
+
+tstep_s  = Scale(gui, from_=0.1, to=3, bg="#333333", fg="red", relief=SUNKEN, resolution = 0.1, command=set_time_step, length=100).place(relx=0, rely=0.3, anchor=W)
 
 triads_b = Button(gui, text = "Triads", command=play_all_chords).place(relx=0, rely=0.5, anchor=W)
 sevens_b = Button(gui, text = "Sevenths", command= lambda: play_all_chords(sevenths=True)).place(relx=0, rely=0.6, anchor=W)
