@@ -24,10 +24,10 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
 * GUI:
     * Improve scale display by putting a tabulation for each semitone not valid in a scale
     * When playing a chords, change color of played notes in the scale label
-    * Make fontground color reverse to background color
     * Gridify the layout of widget
     * Design a background (like VST ones ?)
     * Disable loop button when playing something else
+    * Make instruments slider begin to default value
     
 * Music engine:
     * Build a transcoder from binary representation of tones into actual scale (i.e. 101011010101 = Major)
@@ -65,6 +65,7 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
     * Fix the state delay after stopping a loop
     * Centralize widget handling in `update_gui()`
     * Auto-reconfigure the layout to correspond to what is played when pressing replay or loop button (determine scale and tonic to refresh layout)
+    * Make fontground color reverse to background color
     
 * Music engine:
     * Build a function that play notes

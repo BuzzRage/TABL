@@ -42,6 +42,7 @@ time_step = 0.4
 note_gui  = Label(gui, text="", bg="black", pady=30, font=("Helvetica", 40))
 scale_gui = Label(gui, text="", bg="black", fg="black", font=("Helvetica", 20))
 play_gui  = Label(gui, text="", bg="black", fg="#FF0000", font=("Helvetica", 20))
+instru_t  = Label(gui, text="Instrument", bg="black", fg="white", font=("Helvetica", 10))
 gui.configure(bg="black")
 
 class Callback:
@@ -55,8 +56,6 @@ class Callback:
 def set_time_step(t_step=-1):
     global time_step;
     time_step = float(t_step)
-    print(time_step)
-    print(type(time_step))
     
 def pick_instrument(instru=-1):
     fluidsynth.stop_everything()
@@ -193,12 +192,36 @@ def play_chords(chords_list, count=0, random_mode=False):
     fluidsynth.play_NoteContainer(NoteContainer(chords_list[count]))
     gui.after(int(time_step*1000), lambda: play_chords(chords_list,count+1, random_mode))
     
+def invert_color(hex_color):
+    inverted = ""
+    i = 0
+    hexa_length = len(hex_color)
+    
+    if hexa_length == 3:
+        hex_color = hex_color[0]+hex_color[0]+hex_color[1]+hex_color[1]+hex_color[2]+hex_color[2]
+    else:
+        for i in range(0,6):
+            if i > hexa_length-1:
+                hex_color = "0"+hex_color
+
+    R = hex(255 - int(hex_color[0:2], 16))[2:]
+    G = hex(255 - int(hex_color[2:4], 16))[2:]
+    B = hex(255 - int(hex_color[4:6], 16))[2:]
+    
+    R = "0" + R if len(R) == 1 else R
+    G = "0" + G if len(G) == 1 else G
+    B = "0" + B if len(B) == 1 else B
+    
+    inverted = R+G+B
+
+    return inverted
+    
 def update_gui(valid_notes):
     tonic = current_tonic
     scale = current_scale 
     play_text = ""
-    hexa_code = hex(int(scales[scale][1], 16) + int(notes_dict[valid_notes[0]]))[2:]
-    
+    hexa_code  = hex(int(scales[scale][1], 16) + int(notes_dict[valid_notes[0]]))[2:]
+    invert_hex = invert_color(hexa_code)
     widgets = gui.winfo_children()
     for widget in widgets:
         if isinstance(widget, Scale):
@@ -231,8 +254,9 @@ def update_gui(valid_notes):
                     widget["text"] = "Loop"
             
     gui.configure(bg="#"+hexa_code)
-    note_gui.config(bg="#"+hexa_code, text=valid_notes[0]+"\n"+scale)
+    note_gui.config(bg="#"+hexa_code, fg="#"+invert_hex,text=valid_notes[0]+"\n"+scale)
     scale_gui.config(text=" ".join(valid_notes), bg="#"+hexa_code)
+    instru_t.config(fg="#"+invert_hex)
     play_gui.config(bg="#"+hexa_code, text=play_text)
     gui.after(1, fluidsynth.stop_everything)
     
@@ -317,7 +341,7 @@ random_b = Button(gui, text = "Randomize", command=randomize_selection).place(re
 replay_b = Button(gui, text = "Replay", command=replay_last).place(relx=0.72, rely=0.95, anchor=SW)
 loop_b   = Button(gui, text = "Loop", state="disabled", command=loop_last, bg="#FF0000", fg="#000000").place(relx=1, rely=0.95, anchor=SE)
 
-instru_t = Label(gui, text="Instrument", bg="black", fg="white", font=("Helvetica", 10)).place(relx=0.5, rely=0.91, anchor=S)
+
 instru_s = Scale(gui, from_=0, to=127, showvalue=0, bg="#000000", relief=SUNKEN, resolution = 1, orient=HORIZONTAL, command=pick_instrument, length=200).place(relx=0.5, rely=0.95, anchor=S)
 
 tstep_s  = Scale(gui, from_=0.1, to=3, bg="#333333", fg="red", relief=SUNKEN, resolution = 0.1, command=set_time_step, length=100).place(relx=0, rely=0.3, anchor=W)
@@ -349,6 +373,7 @@ for scale in list(scales.keys()):
 note_gui.place(relx=0.5, rely=0.3, anchor=CENTER)
 scale_gui.place(relx=0.5, rely=0.8, anchor=CENTER)
 play_gui.place(relx=0.5, rely=0.7, anchor=S)
+instru_t.place(relx=0.5, rely=0.91, anchor=S)
 
 scale_selection(current_scale)
 
