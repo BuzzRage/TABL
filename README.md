@@ -27,7 +27,6 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
     * Gridify the layout of widget
     * Design a background (like VST ones ?)
     * Disable loop button when playing something else
-    * Make instruments slider begin to default value
     
 * Music engine:
     * Build a transcoder from binary representation of tones into actual scale (i.e. 101011010101 = Major)
@@ -66,6 +65,7 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
     * Centralize widget handling in `update_gui()`
     * Auto-reconfigure the layout to correspond to what is played when pressing replay or loop button (determine scale and tonic to refresh layout)
     * Make fontground color reverse to background color
+    * Make sliders begin to default value
     
 * Music engine:
     * Build a function that play notes

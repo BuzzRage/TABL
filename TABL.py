@@ -15,8 +15,10 @@ gui.title("Tool-Assisted Backing Loop")
 # You may want to change the soundfont file or the audio driver !
 # In that case, you may also want to change the content of "instruments" variable
 fluidsynth.init("TimGM6mb.sf2", "pulseaudio")
-fluidsynth.set_instrument(1, 5, 0)
 instruments = range(0,127)
+default_instrument = 5
+fluidsynth.set_instrument(1, default_instrument, 0)
+
 
 notes = ["C","C#","D","Eb","E","F","F#","G","Ab","A","Bb","B"]
 notes_f = ["C","C#","Db","D","D#","Eb","E","Fb","E#","F","F#","Gb","G","G#","Ab","A","A#","Bb","B","Cb","B#"]
@@ -37,7 +39,8 @@ current_scale = "major"
 last_prog = None
 loop = False
 loop_count = 0
-time_step = 0.4
+default_time_step = 0.4
+time_step = default_time_step
 
 note_gui  = Label(gui, text="", bg="black", pady=30, font=("Helvetica", 40))
 scale_gui = Label(gui, text="", bg="black", fg="black", font=("Helvetica", 20))
@@ -342,9 +345,10 @@ replay_b = Button(gui, text = "Replay", command=replay_last).place(relx=0.72, re
 loop_b   = Button(gui, text = "Loop", state="disabled", command=loop_last, bg="#FF0000", fg="#000000").place(relx=1, rely=0.95, anchor=SE)
 
 
-instru_s = Scale(gui, from_=0, to=127, showvalue=0, bg="#000000", relief=SUNKEN, resolution = 1, orient=HORIZONTAL, command=pick_instrument, length=200).place(relx=0.5, rely=0.95, anchor=S)
-
-tstep_s  = Scale(gui, from_=0.1, to=3, bg="#333333", fg="red", relief=SUNKEN, resolution = 0.1, command=set_time_step, length=100).place(relx=0, rely=0.3, anchor=W)
+instru_s = Scale(gui, from_=0, to=127, showvalue=0, bg="#000000", relief=SUNKEN, resolution = 1, orient=HORIZONTAL, command=pick_instrument, length=200)
+tstep_s  = Scale(gui, from_=0.1, to=3, bg="#333333", fg="red", relief=SUNKEN, resolution = 0.1, command=set_time_step, length=100)
+instru_s.set(default_instrument)
+tstep_s.set(default_time_step)
 
 triads_b = Button(gui, text = "Triads", command=play_all_chords).place(relx=0, rely=0.5, anchor=W)
 sevens_b = Button(gui, text = "Sevenths", command= lambda: play_all_chords(sevenths=True)).place(relx=0, rely=0.6, anchor=W)
@@ -373,7 +377,10 @@ for scale in list(scales.keys()):
 note_gui.place(relx=0.5, rely=0.3, anchor=CENTER)
 scale_gui.place(relx=0.5, rely=0.8, anchor=CENTER)
 play_gui.place(relx=0.5, rely=0.7, anchor=S)
+
 instru_t.place(relx=0.5, rely=0.91, anchor=S)
+instru_s.place(relx=0.5, rely=0.95, anchor=S)
+tstep_s.place(relx=0, rely=0.3, anchor=W)
 
 scale_selection(current_scale)
 
