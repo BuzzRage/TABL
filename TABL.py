@@ -84,7 +84,8 @@ def loop_button(disable=False):
             if disable is True:
                 widget.config(state="disabled")
             else:
-                widget.config(state="normal")
+                if last_prog is not None:
+                    widget.config(state="normal")
 
 def get_scale(tonic=None, scale=None):
     if tonic is None or scale is None:
@@ -122,8 +123,10 @@ def play_scale(tonic, scale):
     octave = 3 if valid_notes[0][0] == 'C' else 4
     
     gui.after(1, lambda: switch_buttons(disable=True))
+    gui.after(1, lambda: loop_button(disable=True))
     gui.after(1, lambda: play_note(octave, valid_notes))
     gui.after((len(valid_notes)-1)*int(time_step*1000), lambda: switch_buttons(disable=False))
+    gui.after((len(valid_notes)-1)*int(time_step*1000), lambda: loop_button(disable=False))
     gui.after((len(valid_notes)+2)*int(time_step*1000), fluidsynth.stop_everything)
     
 def play_note(octave, scale, count=0):
@@ -183,8 +186,10 @@ def play_all_chords(tonic=None, scale=None, sevenths=False):
         print("\t"+" ".join(chords))
     
     gui.after(1, lambda: switch_buttons(disable=True))
+    gui.after(1, lambda: loop_button(disable=True))
     gui.after(1, lambda: play_chords(valid_chords))
     gui.after((len(valid_chords)-1)*int(time_step*1000), lambda: switch_buttons(disable=False))
+    gui.after((len(valid_chords)-1)*int(time_step*1000), lambda: loop_button(disable=False))
     gui.after((len(valid_chords)+2)*int(time_step*1000), fluidsynth.stop_everything)
         
 def play_chords(chords_list, count=0, random_mode=False):
@@ -297,8 +302,10 @@ def replay_last(count=-1):
             update_gui(get_scale(current_tonic, current_scale))
             gui.after(1, fluidsynth.stop_everything)
             gui.after(1, lambda: switch_buttons(disable=True))
+            gui.after(1, lambda: loop_button(disable=True))
             gui.after(1, lambda: play_chords(last_prog["chords"],random_mode=True))
             gui.after((len(last_prog["chords"]))*int(time_step*1000), lambda: switch_buttons(disable=False))
+            gui.after((len(last_prog["chords"]))*int(time_step*1000), lambda: loop_button(disable=False))
             gui.after((len(last_prog["chords"])+2)*int((time_step)*1000), fluidsynth.stop_everything)
         else:
             play_selection()
