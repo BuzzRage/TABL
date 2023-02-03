@@ -9,7 +9,7 @@ from mingus.containers import *
 from mingus.midi import fluidsynth
 
 gui =Tk()
-gui.geometry("500x500")
+gui.geometry("500x600")
 gui.title("Tool-Assisted Backing Loop")
 
 # You may want to change the soundfont file or the audio driver !
@@ -45,7 +45,11 @@ time_step = default_time_step
 note_gui  = Label(gui, text="", bg="black", pady=30, font=("Helvetica", 40))
 scale_gui = Label(gui, text="", bg="black", fg="black", font=("Helvetica", 20))
 play_gui  = Label(gui, text="", bg="black", fg="#FF0000", font=("Helvetica", 20))
+prog_gui  = Label(gui, text="I II IV V I IIV", bg="#222", fg="red", width=20, relief=SUNKEN, font=("DejaVu Math TeX Gyre", 20))
 instru_t  = Label(gui, text="Instrument", bg="black", fg="white", font=("Helvetica", 10))
+
+prog_frame = Frame(gui).place(relx=0.5, rely=1, anchor=S)
+
 gui.configure(bg="black")
 
 class Callback:
@@ -347,9 +351,9 @@ def play_selection(tonic=None, scale=None):
     play_scale(tonic, scale)
     
     
-random_b = Button(gui, text = "Randomize", command=randomize_selection).place(relx=0.05, rely=0.95, anchor=SW)
-replay_b = Button(gui, text = "Replay", command=replay_last).place(relx=0.72, rely=0.95, anchor=SW)
-loop_b   = Button(gui, text = "Loop", state="disabled", command=loop_last, bg="#FF0000", fg="#000000").place(relx=1, rely=0.95, anchor=SE)
+random_b = Button(gui, text = "Randomize", command=randomize_selection).place(relx=0.05, rely=0.85, anchor=SW)
+replay_b = Button(gui, text = "Replay", command=replay_last).place(relx=0.72, rely=0.85, anchor=SW)
+loop_b   = Button(gui, text = "Loop", state="disabled", command=loop_last, bg="#FF0000", fg="#000000").place(relx=1, rely=0.85, anchor=SE)
 
 
 instru_s = Scale(gui, from_=0, to=127, showvalue=0, bg="#000000", relief=SUNKEN, resolution = 1, orient=HORIZONTAL, command=pick_instrument, length=200)
@@ -381,12 +385,22 @@ for scale in list(scales.keys()):
     callback = Callback(scale_selection, scale)
     scales_b.append(Button(gui, text = scale, command=callback).place(relx=1, rely=drift, anchor=E))
     drift += 0.1
-note_gui.place(relx=0.5, rely=0.3, anchor=CENTER)
-scale_gui.place(relx=0.5, rely=0.8, anchor=CENTER)
-play_gui.place(relx=0.5, rely=0.7, anchor=S)
+ 
+degree_b = list()
+drift = 0
+for degree in ["I", "II", "III", "IV", "V", "VI", "VII"]:
+    degree_b.append(Button(prog_frame, text = degree, command=callback, font=('DejaVu Math TeX Gyre',10), bg="#FFD700", fg="black", width=2).pack(side=LEFT))
+    drift += 0.1
 
-instru_t.place(relx=0.5, rely=0.91, anchor=S)
-instru_s.place(relx=0.5, rely=0.95, anchor=S)
+
+note_gui.place(relx=0.5, rely=0.3, anchor=CENTER)
+scale_gui.place(relx=0.5, rely=0.45, anchor=CENTER)
+play_gui.place(relx=0.5, rely=0.7, anchor=S)
+prog_gui.place(relx=0.5, rely=0.9, anchor=S)
+
+
+instru_t.place(relx=0.5, rely=0.81, anchor=S)
+instru_s.place(relx=0.5, rely=0.85, anchor=S)
 tstep_s.place(relx=0, rely=0.3, anchor=W)
 
 scale_selection(current_scale)
