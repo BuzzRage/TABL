@@ -60,12 +60,12 @@ def set_time_step(t_step=-1):
     global time_step;
     time_step = float(t_step)
     
-def pick_instrument(instru=-1):
+def pick_instrument(instru=None):
     fluidsynth.stop_everything()
-    if instru != 0:
+    if instru != None and int(instru) != default_instrument:
         fluidsynth.set_instrument(1, random.choice(instruments), 0)
     else:
-        fluidsynth.set_instrument(1, instru, 0)
+        fluidsynth.set_instrument(1, int(instru), 0)
     
 
 def switch_buttons(disable=False):
@@ -273,7 +273,7 @@ def randomize_selection():
     global current_scale
     current_tonic = random.choice(notes)
     current_scale = random.choice(list(scales.keys()))
-    pick_instrument(-1)
+    pick_instrument(instru=None)
     play_selection(current_tonic, current_scale)
     
 def note_selection(tonic):

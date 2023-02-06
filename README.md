@@ -73,3 +73,4 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
     * Build a function that play scale
     * Build a function that play all triads within a given scale
     * Make all times affected by `time_step` variable and stop notes after a while (useful for some instruments with high sustain)
+    * Fix default instrument randomization issue
