@@ -396,7 +396,7 @@ for degree in ["I", "II", "III", "IV", "V", "VI", "VII"]:
 note_gui.place(relx=0.5, rely=0.3, anchor=CENTER)
 scale_gui.place(relx=0.5, rely=0.45, anchor=CENTER)
 play_gui.place(relx=0.5, rely=0.7, anchor=S)
-prog_gui.place(relx=0.5, rely=0.9, anchor=S)
+prog_gui.place(relx=0.8, rely=0.9, anchor=S)
 
 
 instru_t.place(relx=0.5, rely=0.81, anchor=S)
