@@ -32,17 +32,18 @@ gui.columnconfigure(6, weight=1)
 gui.columnconfigure(7, weight=1)
 gui.columnconfigure(8, weight=1)
 
-notes_frame = LabelFrame(gui, text="Notes")
+notes_frame = LabelFrame(gui)
 notes_frame.grid(row=0, column=0, columnspan = 9, sticky=N)
 
 layer2 = LabelFrame(gui)
-layer2.grid(row=1, rowspan=1, column=0, columnspan=9, sticky=N, ipadx=100)
+layer2.grid(row=1, rowspan=1, column=0, columnspan=9, sticky=N, ipadx=150, ipady=5)
 layer2.columnconfigure(0, weight=1)
 layer2.columnconfigure(1, weight=1)
 layer2.columnconfigure(2, weight=1)
 layer2.columnconfigure(3, weight=1)
 layer2.columnconfigure(4, weight=1)
 layer2.rowconfigure(0, weight=1)
+layer2.configure(bg="#000000")
 
 layer3 = LabelFrame(gui)
 layer3.grid(row=2, rowspan=3, column=0, columnspan=9, sticky=N, ipadx=100)
@@ -315,9 +316,8 @@ def update_gui(valid_notes):
                     widget.config(bg="#FF0000", fg="#000000")
                     widget["text"] = "Loop"
             
-    gui.configure(bg="#"+hexa_code)
+    gui.configure(bg="#"+invert_hex)
     notes_frame.configure(bg="#"+hexa_code)
-    layer2.configure(bg="#"+hexa_code)
     layer3.configure(bg="#"+hexa_code)
     layer4.configure(bg="#"+hexa_code)
     note_gui.config(bg="#"+hexa_code, fg="#"+invert_hex,text=valid_notes[0]+"\n"+scale)
@@ -427,7 +427,7 @@ tstep_s.set(default_time_step)
 tstep_s.grid(column=0, row=0, padx=10, sticky=EW)
 
 note_gui = Label(layer2, text="", bg="black", pady=30, padx=30, font=("Helvetica", 40), relief=SUNKEN)
-note_gui.grid(column=1, row=0, columnspan=4, rowspan=2, sticky=EW, ipadx=60)
+note_gui.grid(column=1, row=0, columnspan=4, rowspan=2, sticky=EW, padx=5)
 
 
 triads_b = Button(layer3, text = "Triads", command=play_all_chords)
