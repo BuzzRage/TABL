@@ -12,6 +12,59 @@ gui =Tk()
 gui.geometry("500x500")
 gui.title("Tool-Assisted Backing Loop")
 
+gui.rowconfigure(0, weight=1)
+gui.rowconfigure(1, weight=1)
+gui.rowconfigure(2, weight=1)
+gui.rowconfigure(3, weight=1)
+gui.rowconfigure(4, weight=1)
+gui.rowconfigure(5, weight=1)
+gui.rowconfigure(6, weight=1)
+gui.rowconfigure(7, weight=1)
+gui.rowconfigure(8, weight=1)
+
+gui.columnconfigure(0, weight=1)
+gui.columnconfigure(1, weight=1)
+gui.columnconfigure(2, weight=1)
+gui.columnconfigure(3, weight=1)
+gui.columnconfigure(4, weight=1)
+gui.columnconfigure(5, weight=1)
+gui.columnconfigure(6, weight=1)
+gui.columnconfigure(7, weight=1)
+gui.columnconfigure(8, weight=1)
+
+notes_frame = LabelFrame(gui, text="Notes")
+notes_frame.grid(row=0, column=0, columnspan = 9, sticky=N)
+
+layer2 = LabelFrame(gui)
+layer2.grid(row=1, rowspan=1, column=0, columnspan=9, sticky=N, ipadx=100)
+layer2.columnconfigure(0, weight=1)
+layer2.columnconfigure(1, weight=1)
+layer2.columnconfigure(2, weight=1)
+layer2.columnconfigure(3, weight=1)
+layer2.columnconfigure(4, weight=1)
+layer2.rowconfigure(0, weight=1)
+
+layer3 = LabelFrame(gui)
+layer3.grid(row=2, rowspan=3, column=0, columnspan=9, sticky=N, ipadx=100)
+layer3.columnconfigure(0, weight=1)
+layer3.columnconfigure(1, weight=6)
+layer3.columnconfigure(2, weight=1)
+layer3.rowconfigure(0, weight=1)
+layer3.rowconfigure(1, weight=1)
+layer3.rowconfigure(2, weight=1)
+
+layer4 = LabelFrame(gui)
+layer4.grid(row=5, column=0, columnspan=9, sticky=N, ipadx=100)
+layer4.columnconfigure(0, weight=1)
+layer4.columnconfigure(1, weight=1)
+layer4.columnconfigure(2, weight=1)
+layer4.columnconfigure(3, weight=1)
+layer4.columnconfigure(4, weight=1)
+layer4.columnconfigure(5, weight=1)
+
+
+gui.configure(bg="black")
+
 # You may want to change the soundfont file or the audio driver !
 # In that case, you may also want to change the content of "instruments" variable
 fluidsynth.init("TimGM6mb.sf2", "pulseaudio")
@@ -41,12 +94,6 @@ loop = False
 loop_count = 0
 default_time_step = 0.4
 time_step = default_time_step
-
-note_gui  = Label(gui, text="", bg="black", pady=30, font=("Helvetica", 40))
-scale_gui = Label(gui, text="", bg="black", fg="black", font=("Helvetica", 20))
-play_gui  = Label(gui, text="", bg="black", fg="#FF0000", font=("Helvetica", 20))
-instru_t  = Label(gui, text="Instrument", bg="black", fg="white", font=("Helvetica", 10))
-gui.configure(bg="black")
 
 class Callback:
     def __init__(self, callback, *firstArgs):
@@ -195,8 +242,12 @@ def play_all_chords(tonic=None, scale=None, sevenths=False):
 def play_chords(chords_list, count=0, random_mode=False):
     if count == len(chords_list):
         return
+    
+    if random_mode:
+        play_gui.config(text=play_gui["text"]+"\n"+" ".join(chords_list[count]) if play_gui["text"] != "" else " ".join(chords_list[count]))
+    else: 
+        play_gui.config(text=chords_list[count])
         
-    play_gui.config(text= play_gui["text"]+"\n"+" ".join(chords_list[count]) if random_mode else chords_list[count])
     fluidsynth.play_NoteContainer(NoteContainer(chords_list[count]))
     gui.after(int(time_step*1000), lambda: play_chords(chords_list,count+1, random_mode))
     
@@ -231,6 +282,16 @@ def update_gui(valid_notes):
     hexa_code  = hex(int(scales[scale][1], 16) + int(notes_dict[valid_notes[0]]))[2:]
     invert_hex = invert_color(hexa_code)
     widgets = gui.winfo_children()
+
+    for widget in layer3.winfo_children():
+        if isinstance(widget, Button):
+            if widget["text"] in list(scales.keys()):
+                if widget["text"] == scale:
+                    print(scales.keys())
+                    widget.config(bg="#FF0000", fg="#000000")
+                else:
+                    print(scale)
+                    widget.config(bg="#FF8000", fg="#000000")
     for widget in widgets:
         if isinstance(widget, Scale):
             if widget["resolution"] == 1:
@@ -245,14 +306,7 @@ def update_gui(valid_notes):
                     if len(widget["text"]) == 1:
                         widget.config(bg="#FFFFFF", fg="#000000")
                     else:
-                        widget.config(bg="#000000", fg="#FFFFFF")
-                        
-            elif widget["text"] in list(scales.keys()):
-                if widget["text"] == scale:
-                    widget.config(bg="#FF0000", fg="#000000")
-                else:
-                    widget.config(bg="#FF8000", fg="#000000")
-                    
+                        widget.config(bg="#000000", fg="#FFFFFF")                    
             elif widget["text"] in ["Loop", "Stop"]:
                 if loop is True:
                     widget.config(bg="#00FF00", fg="#000000")
@@ -262,9 +316,13 @@ def update_gui(valid_notes):
                     widget["text"] = "Loop"
             
     gui.configure(bg="#"+hexa_code)
+    notes_frame.configure(bg="#"+hexa_code)
+    layer2.configure(bg="#"+hexa_code)
+    layer3.configure(bg="#"+hexa_code)
+    layer4.configure(bg="#"+hexa_code)
     note_gui.config(bg="#"+hexa_code, fg="#"+invert_hex,text=valid_notes[0]+"\n"+scale)
     scale_gui.config(text=" ".join(valid_notes), bg="#"+hexa_code)
-    instru_t.config(fg="#"+invert_hex)
+    instru_s.config(fg="#"+hexa_code)
     play_gui.config(bg="#"+hexa_code, text=play_text)
     gui.after(1, fluidsynth.stop_everything)
     
@@ -346,48 +404,76 @@ def play_selection(tonic=None, scale=None):
         scale = current_scale
     play_scale(tonic, scale)
     
-    
-random_b = Button(gui, text = "Randomize", command=randomize_selection).place(relx=0.05, rely=0.95, anchor=SW)
-replay_b = Button(gui, text = "Replay", command=replay_last).place(relx=0.72, rely=0.95, anchor=SW)
-loop_b   = Button(gui, text = "Loop", state="disabled", command=loop_last, bg="#FF0000", fg="#000000").place(relx=1, rely=0.95, anchor=SE)
 
-
-instru_s = Scale(gui, from_=0, to=127, showvalue=0, bg="#000000", relief=SUNKEN, resolution = 1, orient=HORIZONTAL, command=pick_instrument, length=200)
-tstep_s  = Scale(gui, from_=0.1, to=3, bg="#333333", fg="red", relief=SUNKEN, resolution = 0.1, command=set_time_step, length=100)
-instru_s.set(default_instrument)
-tstep_s.set(default_time_step)
-
-triads_b = Button(gui, text = "Triads", command=play_all_chords).place(relx=0, rely=0.5, anchor=W)
-sevens_b = Button(gui, text = "Sevenths", command= lambda: play_all_chords(sevenths=True)).place(relx=0, rely=0.6, anchor=W)
-rdprog_b = Button(gui, text = "Random prog", command= lambda: play_random_prog(sevenths=False)).place(relx=0, rely=0.7, anchor=W)
 
 notes_b = list()
-drift = 0.02
+curr_column = 1
 for note in notes:
     callback = Callback(note_selection, note)
     if note == current_tonic:
-        notes_b.append(Button(gui, bg='#FF0000', fg ='#000000', height=2, width=1, text = note, command=callback).place(relx=drift, rely=0, anchor=NW))
-        drift += 0.08
+        notes_b.append(Button(notes_frame, bg='#FF0000', fg ='#000000', height=2, width=1, text = note, command=callback).grid(column=curr_column, row=0, sticky=NW, padx=2))
+        curr_column += 1
         continue
     if len(note) == 1:
-        notes_b.append(Button(gui, bg='#FFFFFF', fg ='#000000', height=2, width=1, text = note, command=callback).place(relx=drift, rely=0, anchor=NW))
+        notes_b.append(Button(notes_frame, bg='#FFFFFF', fg ='#000000', height=2, width=1, text = note, command=callback).grid(column=curr_column, row=0, sticky=NW, padx=2))
     else:
-        notes_b.append(Button(gui, bg='#000000', fg ='#FFFFFF', width=1, text = note, command=callback).place(relx=drift, rely=0, anchor=NW))
-    drift += 0.08
+        notes_b.append(Button(notes_frame, bg='#000000', fg ='#FFFFFF', width=1, text = note, command=callback).grid(column=curr_column, row=0, sticky=NW, padx=2))
+    curr_column += 1
+
+
+
+tstep_s  = Scale(layer2, label="Time Step", from_=0.1, to=3, bg="red", fg="#333333", orient=HORIZONTAL, relief=SUNKEN, resolution = 0.1, command=set_time_step, length=100)
+tstep_s.set(default_time_step)
+tstep_s.grid(column=0, row=0, padx=10, sticky=EW)
+
+note_gui = Label(layer2, text="", bg="black", pady=30, padx=30, font=("Helvetica", 40), relief=SUNKEN)
+note_gui.grid(column=1, row=0, columnspan=4, rowspan=2, sticky=EW, ipadx=60)
+
+
+triads_b = Button(layer3, text = "Triads", command=play_all_chords)
+triads_b.grid(row=0, column=0, pady=10, sticky=W)
+
+scale_gui = Label(layer3, text="", bg="black", fg="black", font=("Helvetica", 20))
+scale_gui.grid(row=0, column=1, pady=10, columnspan=5, sticky=N, ipadx=50)
+
+
+sevens_b = Button(layer3, text = "Sevenths", command= lambda: play_all_chords(sevenths=True))
+sevens_b.grid(row=1, column=0, pady=10, sticky=W)
+
+rdprog_b = Button(layer3, text = "Random prog", command= lambda: play_random_prog(sevenths=False))
+rdprog_b.grid(row=2, column=0, pady=10, sticky=W)
 
 scales_b = list()
-drift = 0.5
+curr_row = 0
 for scale in list(scales.keys()):
     callback = Callback(scale_selection, scale)
-    scales_b.append(Button(gui, text = scale, command=callback).place(relx=1, rely=drift, anchor=E))
-    drift += 0.1
-note_gui.place(relx=0.5, rely=0.3, anchor=CENTER)
-scale_gui.place(relx=0.5, rely=0.8, anchor=CENTER)
-play_gui.place(relx=0.5, rely=0.7, anchor=S)
+    if curr_row == 0:
+        scales_b.append(Button(layer3, text = scale, command=callback).grid(row=curr_row, column=8, sticky=E))
+    else:
+        scales_b.append(Button(layer3, text = scale, command=callback).grid(row=curr_row, column=8, sticky=E))
+    curr_row += 1
 
-instru_t.place(relx=0.5, rely=0.91, anchor=S)
-instru_s.place(relx=0.5, rely=0.95, anchor=S)
-tstep_s.place(relx=0, rely=0.3, anchor=W)
+play_gui  = Label(layer3, text="", bg="black", fg="#FF0000", font=("Helvetica", 20))
+play_gui.grid(row=0, column=1, rowspan=3, columnspan=5, sticky=S)
+
+
+
+
+random_b = Button(layer4, text = "Randomize", command=randomize_selection)
+random_b.grid(row=0, column=0, padx=10, sticky=W)
+
+
+instru_s = Scale(layer4, label="Instrument", from_=0, to=127, showvalue=0, bg="#000000", relief=SUNKEN, resolution = 1, orient=HORIZONTAL, command=pick_instrument, length=200)
+instru_s.set(default_instrument)
+instru_s.grid(row=0, column=1, columnspan=3, sticky=EW)
+
+
+replay_b = Button(layer4, text = "Replay", command=replay_last)
+replay_b.grid(row=0, column=4, sticky=E)
+loop_b   = Button(layer4, text = "Loop", state="disabled", command=loop_last, bg="#FF0000", fg="#000000")
+loop_b.grid(row=0, column=5, sticky=E)
+
+
 
 scale_selection(current_scale)
 
