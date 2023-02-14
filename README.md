@@ -23,8 +23,8 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
 * GUI:
     * Improve scale display by putting a tabulation for each semitone not valid in a scale
     * When playing a chords, change color of played notes in the scale label
-    * Gridify the layout of widget
     * Design a background (like VST ones ?)
+    * Fix enable/disable bug due to gridification
     
 * Music engine:
     * Build a transcoder from binary representation of tones into actual scale (i.e. 101011010101 = Major)
@@ -66,6 +66,7 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
     * Make fontground color reverse to background color
     * Make sliders begin to default value
     * Disable loop button when playing something else
+    * Gridify the layout of widget
     
 * Music engine:
     * Build a function that play notes
