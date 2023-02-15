@@ -110,7 +110,7 @@ def set_time_step(t_step=-1):
     
 def pick_instrument(instru=None):
     fluidsynth.stop_everything()
-    if instru != None and int(instru) != default_instrument:
+    if instru is None:
         fluidsynth.set_instrument(1, random.choice(instruments), 0)
     else:
         fluidsynth.set_instrument(1, int(instru), 0)
