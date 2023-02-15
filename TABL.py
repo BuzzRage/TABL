@@ -32,8 +32,8 @@ gui.columnconfigure(6, weight=1)
 gui.columnconfigure(7, weight=1)
 gui.columnconfigure(8, weight=1)
 
-notes_frame = LabelFrame(gui)
-notes_frame.grid(row=0, column=0, columnspan = 9, sticky=N)
+layer1 = LabelFrame(gui)
+layer1.grid(row=0, column=0, columnspan = 9, sticky=N)
 
 layer2 = LabelFrame(gui)
 layer2.grid(row=1, rowspan=1, column=0, columnspan=9, sticky=N, ipadx=150, ipady=5)
@@ -117,7 +117,7 @@ def pick_instrument(instru=None):
     
 
 def switch_buttons(disable=False):
-    widgets = gui.winfo_children()
+    widgets = gui.winfo_children() + layer1.winfo_children() + layer2.winfo_children() + layer3.winfo_children() + layer4.winfo_children()
     for widget in widgets:
         if isinstance(widget, Button) and widget["text"] not in ["Loop","Stop"]:
             if disable is True:
@@ -126,7 +126,7 @@ def switch_buttons(disable=False):
                 widget.config(state="normal")
                 
 def loop_button(disable=False):
-    widgets = gui.winfo_children()
+    widgets = layer4.winfo_children()
     for widget in widgets:
         if isinstance(widget, Button) and widget["text"] in ["Loop","Stop"]:
             if disable is True:
@@ -282,23 +282,9 @@ def update_gui(valid_notes):
     play_text = ""
     hexa_code  = hex(int(scales[scale][1], 16) + int(notes_dict[valid_notes[0]]))[2:]
     invert_hex = invert_color(hexa_code)
-    widgets = gui.winfo_children()
+    widgets = [gui.winfo_children(),layer1.winfo_children(),layer2.winfo_children(),layer3.winfo_children(),layer4.winfo_children()]
 
-    for widget in layer3.winfo_children():
-        if isinstance(widget, Button):
-            if widget["text"] in list(scales.keys()):
-                if widget["text"] == scale:
-                    print(scales.keys())
-                    widget.config(bg="#FF0000", fg="#000000")
-                else:
-                    print(scale)
-                    widget.config(bg="#FF8000", fg="#000000")
-    for widget in widgets:
-        if isinstance(widget, Scale):
-            if widget["resolution"] == 1:
-                widget.config(bg="#"+hexa_code, fg="#FFFFFF", troughcolor="#000000")
-        if isinstance(widget, Label) and widget["text"] == "Instrument":
-            widget.config(bg="#"+hexa_code, fg="#FFFFFF")
+    for widget in widgets[1]:
         if isinstance(widget, Button):
             if widget["text"] in notes_f:
                 if widget["text"] == tonic:
@@ -307,8 +293,24 @@ def update_gui(valid_notes):
                     if len(widget["text"]) == 1:
                         widget.config(bg="#FFFFFF", fg="#000000")
                     else:
-                        widget.config(bg="#000000", fg="#FFFFFF")                    
-            elif widget["text"] in ["Loop", "Stop"]:
+                        widget.config(bg="#000000", fg="#FFFFFF")
+        
+    for widget in widgets[3]:
+        if isinstance(widget, Button):
+            if widget["text"] in list(scales.keys()):
+                if widget["text"] == scale:
+                    widget.config(bg="#FF0000", fg="#000000")
+                else:
+                    widget.config(bg="#FF8000", fg="#000000")
+
+    for widget in widgets[4]:
+        if isinstance(widget, Scale):
+            if widget["resolution"] == 1:
+                widget.config(bg="#"+hexa_code, fg="#FFFFFF", troughcolor="#000000")
+        if isinstance(widget, Label) and widget["text"] == "Instrument":
+            widget.config(bg="#"+hexa_code, fg="#FFFFFF")
+        if isinstance(widget, Button):
+            if widget["text"] in ["Loop", "Stop"]:
                 if loop is True:
                     widget.config(bg="#00FF00", fg="#000000")
                     widget["text"] = "Stop"
@@ -317,7 +319,7 @@ def update_gui(valid_notes):
                     widget["text"] = "Loop"
             
     gui.configure(bg="#"+invert_hex)
-    notes_frame.configure(bg="#"+hexa_code)
+    layer1.configure(bg="#"+hexa_code)
     layer3.configure(bg="#"+hexa_code)
     layer4.configure(bg="#"+hexa_code)
     note_gui.config(bg="#"+hexa_code, fg="#"+invert_hex,text=valid_notes[0]+"\n"+scale)
@@ -411,13 +413,13 @@ curr_column = 1
 for note in notes:
     callback = Callback(note_selection, note)
     if note == current_tonic:
-        notes_b.append(Button(notes_frame, bg='#FF0000', fg ='#000000', height=2, width=1, text = note, command=callback).grid(column=curr_column, row=0, sticky=NW, padx=2))
+        notes_b.append(Button(layer1, bg='#FF0000', fg ='#000000', height=2, width=1, text = note, command=callback).grid(column=curr_column, row=0, sticky=NW, padx=2))
         curr_column += 1
         continue
     if len(note) == 1:
-        notes_b.append(Button(notes_frame, bg='#FFFFFF', fg ='#000000', height=2, width=1, text = note, command=callback).grid(column=curr_column, row=0, sticky=NW, padx=2))
+        notes_b.append(Button(layer1, bg='#FFFFFF', fg ='#000000', height=2, width=1, text = note, command=callback).grid(column=curr_column, row=0, sticky=NW, padx=2))
     else:
-        notes_b.append(Button(notes_frame, bg='#000000', fg ='#FFFFFF', width=1, text = note, command=callback).grid(column=curr_column, row=0, sticky=NW, padx=2))
+        notes_b.append(Button(layer1, bg='#000000', fg ='#FFFFFF', width=1, text = note, command=callback).grid(column=curr_column, row=0, sticky=NW, padx=2))
     curr_column += 1
 
 
