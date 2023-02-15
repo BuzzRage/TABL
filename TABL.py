@@ -306,7 +306,7 @@ def update_gui(valid_notes):
     for widget in widgets[4]:
         if isinstance(widget, Scale):
             if widget["resolution"] == 1:
-                widget.config(bg="#"+hexa_code, fg="#FFFFFF", troughcolor="#000000")
+                widget.config(bg="#000000", fg="#"+hexa_code, troughcolor="#FFFFFF")
         if isinstance(widget, Label) and widget["text"] == "Instrument":
             widget.config(bg="#"+hexa_code, fg="#FFFFFF")
         if isinstance(widget, Button):
@@ -324,7 +324,6 @@ def update_gui(valid_notes):
     layer4.configure(bg="#"+hexa_code)
     note_gui.config(bg="#"+hexa_code, fg="#"+invert_hex,text=valid_notes[0]+"\n"+scale)
     scale_gui.config(text=" ".join(valid_notes), bg="#"+hexa_code)
-    instru_s.config(fg="#"+hexa_code)
     play_gui.config(bg="#"+hexa_code, text=play_text)
     gui.after(1, fluidsynth.stop_everything)
     
