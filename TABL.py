@@ -9,7 +9,7 @@ from mingus.containers import *
 from mingus.midi import fluidsynth
 
 gui =Tk()
-gui.geometry("500x500")
+gui.geometry("550x650")
 gui.title("Tool-Assisted Backing Loop")
 
 gui.rowconfigure(0, weight=1)
@@ -33,10 +33,23 @@ gui.columnconfigure(7, weight=1)
 gui.columnconfigure(8, weight=1)
 
 layer1 = LabelFrame(gui)
-layer1.grid(row=0, column=0, columnspan = 9, sticky=N)
+layer1.grid(row=0, column=0, columnspan = 9, sticky=NSEW, pady=(0,5))
+layer1.columnconfigure(0, weight=1)
+layer1.columnconfigure(1, weight=1)
+layer1.columnconfigure(2, weight=1)
+layer1.columnconfigure(3, weight=1)
+layer1.columnconfigure(4, weight=1)
+layer1.columnconfigure(5, weight=1)
+layer1.columnconfigure(6, weight=1)
+layer1.columnconfigure(7, weight=1)
+layer1.columnconfigure(8, weight=1)
+layer1.columnconfigure(9, weight=1)
+layer1.columnconfigure(10, weight=1)
+layer1.columnconfigure(11, weight=1)
+layer1.columnconfigure(12, weight=1)
 
 layer2 = LabelFrame(gui)
-layer2.grid(row=1, rowspan=1, column=0, columnspan=9, sticky=N, ipadx=150, ipady=5)
+layer2.grid(row=1, rowspan=1, column=0, columnspan=9, sticky=NSEW, ipadx=150, ipady=5, pady=5)
 layer2.columnconfigure(0, weight=1)
 layer2.columnconfigure(1, weight=1)
 layer2.columnconfigure(2, weight=1)
@@ -46,7 +59,7 @@ layer2.rowconfigure(0, weight=1)
 layer2.configure(bg="#000000")
 
 layer3 = LabelFrame(gui)
-layer3.grid(row=2, rowspan=3, column=0, columnspan=9, sticky=N, ipadx=100)
+layer3.grid(row=2, rowspan=3, column=0, columnspan=9, sticky=NSEW, ipadx=100, pady=5)
 layer3.columnconfigure(0, weight=1)
 layer3.columnconfigure(1, weight=6)
 layer3.columnconfigure(2, weight=1)
@@ -55,13 +68,26 @@ layer3.rowconfigure(1, weight=1)
 layer3.rowconfigure(2, weight=1)
 
 layer4 = LabelFrame(gui)
-layer4.grid(row=5, column=0, columnspan=9, sticky=N, ipadx=100)
+layer4.grid(row=5, column=0, columnspan=9, sticky=NSEW, ipadx=100, pady=5)
 layer4.columnconfigure(0, weight=1)
 layer4.columnconfigure(1, weight=1)
 layer4.columnconfigure(2, weight=1)
 layer4.columnconfigure(3, weight=1)
 layer4.columnconfigure(4, weight=1)
 layer4.columnconfigure(5, weight=1)
+layer4.rowconfigure(0, weight=1)
+
+layer5 = LabelFrame(gui)
+layer5.grid(row=6, rowspan=2, column=0, columnspan=9, sticky=NSEW, pady=5)
+layer5.columnconfigure(0, weight=1)
+layer5.columnconfigure(1, weight=1)
+layer5.columnconfigure(2, weight=1)
+layer5.columnconfigure(3, weight=1)
+layer5.columnconfigure(4, weight=1)
+layer5.columnconfigure(5, weight=1)
+layer5.columnconfigure(6, weight=1)
+layer5.rowconfigure(0, weight=1)
+layer5.rowconfigure(1, weight=1)
 
 
 gui.configure(bg="black")
@@ -322,6 +348,7 @@ def update_gui(valid_notes):
     layer1.configure(bg="#"+hexa_code)
     layer3.configure(bg="#"+hexa_code)
     layer4.configure(bg="#"+hexa_code)
+    layer5.configure(bg="#"+hexa_code)
     note_gui.config(bg="#"+hexa_code, fg="#"+invert_hex,text=valid_notes[0]+"\n"+scale)
     scale_gui.config(text=" ".join(valid_notes), bg="#"+hexa_code)
     play_gui.config(bg="#"+hexa_code, text=play_text)
@@ -412,13 +439,13 @@ curr_column = 1
 for note in notes:
     callback = Callback(note_selection, note)
     if note == current_tonic:
-        notes_b.append(Button(layer1, bg='#FF0000', fg ='#000000', height=2, width=1, text = note, command=callback).grid(column=curr_column, row=0, sticky=NW, padx=2))
+        notes_b.append(Button(layer1, bg='#FF0000', fg ='#000000', height=2, width=1, text = note, command=callback).grid(column=curr_column, row=0, sticky=NW, ipadx=10))
         curr_column += 1
         continue
     if len(note) == 1:
-        notes_b.append(Button(layer1, bg='#FFFFFF', fg ='#000000', height=2, width=1, text = note, command=callback).grid(column=curr_column, row=0, sticky=NW, padx=2))
+        notes_b.append(Button(layer1, bg='#FFFFFF', fg ='#000000', height=2, width=1, text = note, command=callback).grid(column=curr_column, row=0, sticky=NW, ipadx=10))
     else:
-        notes_b.append(Button(layer1, bg='#000000', fg ='#FFFFFF', width=1, text = note, command=callback).grid(column=curr_column, row=0, sticky=NW, padx=2))
+        notes_b.append(Button(layer1, bg='#000000', fg ='#FFFFFF', width=1, text = note, command=callback).grid(column=curr_column, row=0, sticky=NW, ipadx=10))
     curr_column += 1
 
 
@@ -463,16 +490,26 @@ play_gui.grid(row=0, column=1, rowspan=3, columnspan=5, sticky=S)
 random_b = Button(layer4, text = "Randomize", command=randomize_selection)
 random_b.grid(row=0, column=0, padx=10, sticky=W)
 
-
-instru_s = Scale(layer4, label="Instrument", from_=0, to=127, showvalue=0, bg="#000000", relief=SUNKEN, resolution = 1, orient=HORIZONTAL, command=pick_instrument, length=200)
+instru_s = Scale(layer4, label="Instrument", from_=0, to=127, bg="#000000", relief=SUNKEN, resolution = 1, orient=HORIZONTAL, command=pick_instrument, length=200)
 instru_s.set(default_instrument)
-instru_s.grid(row=0, column=1, columnspan=3, sticky=EW)
-
+instru_s.grid(row=0, column=1, columnspan=3, pady=5)
 
 replay_b = Button(layer4, text = "Replay", command=replay_last)
 replay_b.grid(row=0, column=4, sticky=E)
+
 loop_b   = Button(layer4, text = "Loop", state="disabled", command=loop_last, bg="#FF0000", fg="#000000")
 loop_b.grid(row=0, column=5, sticky=E)
+
+
+
+prog_gui  = Label(layer5, text="I II IV V I IIV", bg="#222", fg="red", relief=SUNKEN, font=("DejaVu Math TeX Gyre", 20))
+prog_gui.grid(row=0, column=0, columnspan=7, sticky=EW, padx=66)
+
+degree_b = list()
+curr_column = 0
+for degree in ["I", "II", "III", "IV", "V", "VI", "VII"]:
+    degree_b.append(Button(layer5, text = degree, command=callback, font=('DejaVu Math TeX Gyre',10), bg="#FFD700", fg="black", height=1, width=2).grid(row=1, column=curr_column, sticky=EW, padx=10))
+    curr_column += 1
 
 
 
