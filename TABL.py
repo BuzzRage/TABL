@@ -97,6 +97,7 @@ gui.configure(bg="black")
 fluidsynth.init("TimGM6mb.sf2", "pulseaudio")
 instruments = range(0,127)
 default_instrument = 5
+default_time_step  = 0.4
 fluidsynth.set_instrument(1, default_instrument, 0)
 
 
@@ -114,13 +115,15 @@ scales = {"major":            (major, major_hex),
           "natural minor":    (minor_natural, minor_natural_hex), 
           "harmonic minor":   (minor_harmonique, minor_natural_hex)}
 
-current_tonic = "C"
-current_scale = "major"
+curr_tonic = "C"
+curr_scale = "major"
+curr_instr = default_instrument
+curr_tstep = default_time_step
+
 last_prog = None
 loop = False
 loop_count = 0
-default_time_step = 0.4
-time_step = default_time_step
+
 
 class Callback:
     def __init__(self, callback, *firstArgs):
@@ -131,15 +134,20 @@ class Callback:
         return self.__callback (*(self.__firstArgs + args))
 
 def set_time_step(t_step=-1):
-    global time_step;
-    time_step = float(t_step)
+    global curr_tstep;
+    curr_tstep = float(t_step)
     
 def pick_instrument(instru=None):
+    global curr_instr;
     fluidsynth.stop_everything()
     if instru is None:
-        fluidsynth.set_instrument(1, random.choice(instruments), 0)
+        curr_instr = random.choice(instruments)
+        for widget in layer4.winfo_children():
+            if isinstance(widget, Scale):
+                widget.set(curr_instr)
     else:
-        fluidsynth.set_instrument(1, int(instru), 0)
+        curr_instr = int(instru)
+    fluidsynth.set_instrument(1, curr_instr, 0)
     
 
 def switch_buttons(disable=False):
@@ -163,8 +171,8 @@ def loop_button(disable=False):
 
 def get_scale(tonic=None, scale=None):
     if tonic is None or scale is None:
-        tonic = current_tonic
-        scale = current_scale
+        tonic = curr_tonic
+        scale = curr_scale
     
     if scale == "major":
         valid_notes = s.Major(tonic).ascending()
@@ -199,9 +207,9 @@ def play_scale(tonic, scale):
     gui.after(1, lambda: switch_buttons(disable=True))
     gui.after(1, lambda: loop_button(disable=True))
     gui.after(1, lambda: play_note(octave, valid_notes))
-    gui.after((len(valid_notes)-1)*int(time_step*1000), lambda: switch_buttons(disable=False))
-    gui.after((len(valid_notes)-1)*int(time_step*1000), lambda: loop_button(disable=False))
-    gui.after((len(valid_notes)+2)*int(time_step*1000), fluidsynth.stop_everything)
+    gui.after((len(valid_notes)-1)*int(curr_tstep*1000), lambda: switch_buttons(disable=False))
+    gui.after((len(valid_notes)-1)*int(curr_tstep*1000), lambda: loop_button(disable=False))
+    gui.after((len(valid_notes)+2)*int(curr_tstep*1000), fluidsynth.stop_everything)
     
 def play_note(octave, scale, count=0):
     if count == len(scale):
@@ -211,12 +219,12 @@ def play_note(octave, scale, count=0):
         octave += 1
     play_gui.config(text=scale[count]+"-"+str(octave))
     fluidsynth.play_Note(Note(scale[count]+"-"+str(octave)))
-    gui.after(int(time_step*1000), lambda: play_note(octave, scale, count+1))
+    gui.after(int(curr_tstep*1000), lambda: play_note(octave, scale, count+1))
     
 def play_random_prog(tonic=None, scale=None, sevenths=False, length=4):
     if tonic is None or scale is None:
-        tonic = current_tonic
-        scale = current_scale
+        tonic = curr_tonic
+        scale = curr_scale
     
     valid_notes = get_scale(tonic, scale)
     valid_chords = get_chords(valid_notes, sevenths)
@@ -228,9 +236,9 @@ def play_random_prog(tonic=None, scale=None, sevenths=False, length=4):
         random_chords.append(valid_chords[random.randint(0,len(valid_chords)-1)])
     
     if sevenths is True:
-        print("Random sevenths in {}: ".format(current_tonic+" "+current_scale))
+        print("Random sevenths in {}: ".format(curr_tonic+" "+curr_scale))
     else:
-        print("Random triads in {}: ".format(current_tonic+" "+current_scale))
+        print("Random triads in {}: ".format(curr_tonic+" "+curr_scale))
     for chords in random_chords:
         print("\t"+" ".join(chords))
     
@@ -239,32 +247,32 @@ def play_random_prog(tonic=None, scale=None, sevenths=False, length=4):
     gui.after(1, lambda: switch_buttons(disable=True))
     gui.after(1, lambda: loop_button(disable=True))
     gui.after(1, lambda: play_chords(random_chords,random_mode=True))
-    gui.after((len(random_chords)-1)*int(time_step*1000), lambda: switch_buttons(disable=False))
-    gui.after((len(random_chords)-1)*int(time_step*1000), lambda: loop_button(disable=False))
-    gui.after((len(random_chords)+2)*int(time_step*1000), fluidsynth.stop_everything)
+    gui.after((len(random_chords)-1)*int(curr_tstep*1000), lambda: switch_buttons(disable=False))
+    gui.after((len(random_chords)-1)*int(curr_tstep*1000), lambda: loop_button(disable=False))
+    gui.after((len(random_chords)+2)*int(curr_tstep*1000), fluidsynth.stop_everything)
     
 def play_all_chords(tonic=None, scale=None, sevenths=False):
     if tonic is None or scale is None:
-        tonic = current_tonic
-        scale = current_scale
+        tonic = curr_tonic
+        scale = curr_scale
     
     valid_notes = get_scale(tonic, scale)
     valid_chords = get_chords(valid_notes, sevenths)
     update_gui(valid_notes)
                
     if sevenths is True:
-        print("Sevenths in {}: ".format(current_tonic+" "+current_scale))
+        print("Sevenths in {}: ".format(curr_tonic+" "+curr_scale))
     else:
-        print("Triads in {}: ".format(current_tonic+" "+current_scale))
+        print("Triads in {}: ".format(curr_tonic+" "+curr_scale))
     for chords in valid_chords:
         print("\t"+" ".join(chords))
     
     gui.after(1, lambda: switch_buttons(disable=True))
     gui.after(1, lambda: loop_button(disable=True))
     gui.after(1, lambda: play_chords(valid_chords))
-    gui.after((len(valid_chords)-1)*int(time_step*1000), lambda: switch_buttons(disable=False))
-    gui.after((len(valid_chords)-1)*int(time_step*1000), lambda: loop_button(disable=False))
-    gui.after((len(valid_chords)+2)*int(time_step*1000), fluidsynth.stop_everything)
+    gui.after((len(valid_chords)-1)*int(curr_tstep*1000), lambda: switch_buttons(disable=False))
+    gui.after((len(valid_chords)-1)*int(curr_tstep*1000), lambda: loop_button(disable=False))
+    gui.after((len(valid_chords)+2)*int(curr_tstep*1000), fluidsynth.stop_everything)
         
 def play_chords(chords_list, count=0, random_mode=False):
     if count == len(chords_list):
@@ -276,7 +284,7 @@ def play_chords(chords_list, count=0, random_mode=False):
         play_gui.config(text=chords_list[count])
         
     fluidsynth.play_NoteContainer(NoteContainer(chords_list[count]))
-    gui.after(int(time_step*1000), lambda: play_chords(chords_list,count+1, random_mode))
+    gui.after(int(curr_tstep*1000), lambda: play_chords(chords_list,count+1, random_mode))
     
 def invert_color(hex_color):
     inverted = ""
@@ -303,8 +311,8 @@ def invert_color(hex_color):
     return inverted
     
 def update_gui(valid_notes):
-    tonic = current_tonic
-    scale = current_scale 
+    tonic = curr_tonic
+    scale = curr_scale 
     play_text = ""
     hexa_code  = hex(int(scales[scale][1], 16) + int(notes_dict[valid_notes[0]]))[2:]
     invert_hex = invert_color(hexa_code)
@@ -355,21 +363,21 @@ def update_gui(valid_notes):
     gui.after(1, fluidsynth.stop_everything)
     
 def randomize_selection():
-    global current_tonic
-    global current_scale
-    current_tonic = random.choice(notes)
-    current_scale = random.choice(list(scales.keys()))
+    global curr_tonic
+    global curr_scale
+    curr_tonic = random.choice(notes)
+    curr_scale = random.choice(list(scales.keys()))
     pick_instrument(instru=None)
-    play_selection(current_tonic, current_scale)
+    play_selection(curr_tonic, curr_scale)
     
 def note_selection(tonic):
-    global current_tonic
-    current_tonic = tonic
-    play_selection(current_tonic, current_scale)
+    global curr_tonic
+    curr_tonic = tonic
+    play_selection(curr_tonic, curr_scale)
     
 def scale_selection(scale):
-    global current_scale
-    current_scale = scale
+    global curr_scale
+    curr_scale = scale
     update_gui(get_scale())
 
 def replay_last(count=-1):        
@@ -379,20 +387,20 @@ def replay_last(count=-1):
             gui.after(1, fluidsynth.stop_everything)
             play_gui.config(text="")
             gui.after(1, lambda: play_chords(last_prog["chords"],random_mode=True))
-        gui.after(int(time_step*1000), lambda: replay_last(count+1))
+        gui.after(int(curr_tstep*1000), lambda: replay_last(count+1))
     elif loop is False and count == -1:
         if last_prog is not None:
-            global current_tonic; global current_scale;
-            current_tonic = last_prog["tonic"]
-            current_scale = last_prog["scale"]
-            update_gui(get_scale(current_tonic, current_scale))
+            global curr_tonic; global curr_scale;
+            curr_tonic = last_prog["tonic"]
+            curr_scale = last_prog["scale"]
+            update_gui(get_scale(curr_tonic, curr_scale))
             gui.after(1, fluidsynth.stop_everything)
             gui.after(1, lambda: switch_buttons(disable=True))
             gui.after(1, lambda: loop_button(disable=True))
             gui.after(1, lambda: play_chords(last_prog["chords"],random_mode=True))
-            gui.after((len(last_prog["chords"]))*int(time_step*1000), lambda: switch_buttons(disable=False))
-            gui.after((len(last_prog["chords"]))*int(time_step*1000), lambda: loop_button(disable=False))
-            gui.after((len(last_prog["chords"])+2)*int((time_step)*1000), fluidsynth.stop_everything)
+            gui.after((len(last_prog["chords"]))*int(curr_tstep*1000), lambda: switch_buttons(disable=False))
+            gui.after((len(last_prog["chords"]))*int(curr_tstep*1000), lambda: loop_button(disable=False))
+            gui.after((len(last_prog["chords"])+2)*int((curr_tstep)*1000), fluidsynth.stop_everything)
         else:
             play_selection()
          
@@ -400,36 +408,36 @@ def stop_loop():
     loop_button(disable=False)
     switch_buttons(disable=False)
     play_text = play_gui["text"]
-    global current_tonic; global current_scale;
-    current_tonic = last_prog["tonic"]
-    current_scale = last_prog["scale"]
-    update_gui(get_scale(current_tonic, current_scale))
+    global curr_tonic; global curr_scale;
+    curr_tonic = last_prog["tonic"]
+    curr_scale = last_prog["scale"]
+    update_gui(get_scale(curr_tonic, curr_scale))
     play_gui.config(text=play_text)
      
 def loop_last():
-    global loop; global current_tonic; global current_scale;
+    global loop; global curr_tonic; global curr_scale;
     
     if last_prog["chords"] is None:
         return
     
     if not loop:
         loop = True
-        global current_tonic; global current_scale;
-        current_tonic = last_prog["tonic"]
-        current_scale = last_prog["scale"]
-        update_gui(get_scale(current_tonic, current_scale))
+        global curr_tonic; global curr_scale;
+        curr_tonic = last_prog["tonic"]
+        curr_scale = last_prog["scale"]
+        update_gui(get_scale(curr_tonic, curr_scale))
         gui.after(1, lambda: switch_buttons(disable=True))
         replay_last(count=0)
     else:
         loop = False
         gui.after(1, lambda: loop_button(disable=True))
-        gui.after((len(last_prog["chords"])-(loop_count)%len(last_prog["chords"]))*int(time_step*1000), stop_loop)
-        gui.after(((len(last_prog["chords"])+2)-(loop_count)%len(last_prog["chords"]))*int(time_step*1000), fluidsynth.stop_everything)
+        gui.after((len(last_prog["chords"])-(loop_count)%len(last_prog["chords"]))*int(curr_tstep*1000), stop_loop)
+        gui.after(((len(last_prog["chords"])+2)-(loop_count)%len(last_prog["chords"]))*int(curr_tstep*1000), fluidsynth.stop_everything)
     
 def play_selection(tonic=None, scale=None):
     if tonic is None or scale is None:
-        tonic = current_tonic
-        scale = current_scale
+        tonic = curr_tonic
+        scale = curr_scale
     play_scale(tonic, scale)
     
 
@@ -438,7 +446,7 @@ notes_b = list()
 curr_column = 1
 for note in notes:
     callback = Callback(note_selection, note)
-    if note == current_tonic:
+    if note == curr_tonic:
         notes_b.append(Button(layer1, bg='#FF0000', fg ='#000000', height=2, width=1, text = note, command=callback).grid(column=curr_column, row=0, sticky=NW, ipadx=10))
         curr_column += 1
         continue
@@ -513,6 +521,6 @@ for degree in ["I", "II", "III", "IV", "V", "VI", "VII"]:
 
 
 
-scale_selection(current_scale)
+scale_selection(curr_scale)
 
 gui.mainloop()
