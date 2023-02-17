@@ -14,7 +14,6 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
 ## TO DO
 
 * Features:
-    * Make a loop on selected chord progression
     * Add a button to see all triads
     * Add a button to see all sevenths
     * Let the user design its own scale
@@ -50,6 +49,7 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
     * Make the replay button replay the last thing played (note only the current scale, but also last chord progression)
     * Make a loop on last chord progression
     * Let the user choose the time step
+    * Make a loop on selected chord progression
 
 * GUI:
     * Make the tonic change the color (e.g. A = 440 Hz, add 0x440 to the hexacode of a scale)

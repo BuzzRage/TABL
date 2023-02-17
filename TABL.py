@@ -98,6 +98,7 @@ fluidsynth.init("TimGM6mb.sf2", "pulseaudio")
 instruments = range(0,127)
 default_instrument = 5
 default_time_step  = 0.4
+default_prog_roman = "I V IV V I IV V I"
 fluidsynth.set_instrument(1, default_instrument, 0)
 
 
@@ -115,12 +116,24 @@ scales = {"major":            (major, major_hex),
           "natural minor":    (minor_natural, minor_natural_hex), 
           "harmonic minor":   (minor_harmonique, minor_natural_hex)}
 
+
+def get_roman_to_int(roman):
+    roman_to_int = {"I": 1, "II": 2, "III": 3, "IV": 4, "V": 5, "VI": 6, "VII": 7, "VIII": 8}
+    
+    value = list()
+    for i in range(0, len(roman.split(" "))):
+        value.append(roman_to_int[roman.split(" ")[i]])
+    return value
+
+
+
 curr_tonic = "C"
 curr_scale = "major"
 curr_instr = default_instrument
 curr_tstep = default_time_step
+curr_prog  = default_prog_roman.split(" ")
 
-last_prog = None
+last_prog = {"chords": list(), "tonic": curr_tonic, "scale": curr_scale}
 loop = False
 loop_count = 0
 
@@ -221,6 +234,46 @@ def play_note(octave, scale, count=0):
     fluidsynth.play_Note(Note(scale[count]+"-"+str(octave)))
     gui.after(int(curr_tstep*1000), lambda: play_note(octave, scale, count+1))
     
+def flush_prog():
+    global curr_prog;
+    global last_prog;
+    curr_prog = list()
+    prog_gui["text"] = ""
+    last_prog["chords"] = list()
+    
+def play_selected_prog():
+    global curr_prog;
+    global curr_tonic;
+    global curr_scale;
+    
+    if len(curr_prog) == 0:
+        print("No chord progression selected")
+        return
+    
+    valid_notes = get_scale(curr_tonic, curr_scale)
+    valid_chords = get_chords(valid_notes)
+    update_gui(valid_notes)
+    
+    selected_chords = list()
+    
+    chord_numbers = get_roman_to_int(" ".join(curr_prog))
+    
+    for i in range(0, len(chord_numbers)):
+        selected_chords.append(valid_chords[chord_numbers[i] - 1])
+    
+    print("Selected chords in {}: ".format(curr_tonic+" "+curr_scale))
+    for chords in selected_chords:
+        print("\t"+" ".join(chords))
+        
+    global last_prog; last_prog = {"chords": selected_chords, "tonic": curr_tonic, "scale": curr_scale}
+    
+    gui.after(1, lambda: switch_buttons(disable=True))
+    gui.after(1, lambda: loop_button(disable=True))
+    gui.after(1, lambda: play_chords(selected_chords,random_mode=True))
+    gui.after((len(selected_chords)-1)*int(curr_tstep*1000), lambda: switch_buttons(disable=False))
+    gui.after((len(selected_chords)-1)*int(curr_tstep*1000), lambda: loop_button(disable=False))
+    gui.after((len(selected_chords)+2)*int(curr_tstep*1000), fluidsynth.stop_everything)
+    
 def play_random_prog(tonic=None, scale=None, sevenths=False, length=4):
     if tonic is None or scale is None:
         tonic = curr_tonic
@@ -316,7 +369,7 @@ def update_gui(valid_notes):
     play_text = ""
     hexa_code  = hex(int(scales[scale][1], 16) + int(notes_dict[valid_notes[0]]))[2:]
     invert_hex = invert_color(hexa_code)
-    widgets = [gui.winfo_children(),layer1.winfo_children(),layer2.winfo_children(),layer3.winfo_children(),layer4.winfo_children()]
+    widgets = [gui.winfo_children(),layer1.winfo_children(),layer2.winfo_children(),layer3.winfo_children(),layer4.winfo_children(),layer5.winfo_children()]
 
     for widget in widgets[1]:
         if isinstance(widget, Button):
@@ -351,6 +404,13 @@ def update_gui(valid_notes):
                 elif loop is False:
                     widget.config(bg="#FF0000", fg="#000000")
                     widget["text"] = "Loop"
+                    
+    for widget in widgets[5]:
+        if isinstance(widget, Button):
+            if widget["text"] == "Flush":
+                widget.config(bg="#"+invert_hex, fg="#000000")
+            elif widget["text"] == "Play":
+                widget.config(bg="#"+hexa_code, fg="#000000")
             
     gui.configure(bg="#"+invert_hex)
     layer1.configure(bg="#"+hexa_code)
@@ -375,6 +435,17 @@ def note_selection(tonic):
     curr_tonic = tonic
     play_selection(curr_tonic, curr_scale)
     
+def prog_selector(degree):
+    global curr_prog; 
+    if prog_gui["text"] != "":
+        curr_prog = prog_gui["text"].split(" ")
+
+    if len(curr_prog) == 8:
+        curr_prog = list()
+    curr_prog.append(degree)
+    
+    prog_gui["text"] = " ".join(curr_prog)
+        
 def scale_selection(scale):
     global curr_scale
     curr_scale = scale
@@ -509,13 +580,19 @@ loop_b   = Button(layer4, text = "Loop", state="disabled", command=loop_last, bg
 loop_b.grid(row=0, column=5, sticky=E)
 
 
+reset_prog = Button(layer5, text = "Flush", command=flush_prog)
+reset_prog.grid(row=0, column=0, padx=10, sticky=W)
 
-prog_gui  = Label(layer5, text="I II IV V I IIV", bg="#222", fg="red", relief=SUNKEN, font=("DejaVu Math TeX Gyre", 20))
+prog_gui  = Label(layer5, text=default_prog_roman, bg="#222", fg="red", relief=SUNKEN, font=("DejaVu Math TeX Gyre", 20))
 prog_gui.grid(row=0, column=0, columnspan=7, sticky=EW, padx=66)
+
+play_prog = Button(layer5, text = "Play", command=play_selected_prog)
+play_prog.grid(row=0, column=6, padx=10, sticky=E)
 
 degree_b = list()
 curr_column = 0
 for degree in ["I", "II", "III", "IV", "V", "VI", "VII"]:
+    callback = Callback(prog_selector, degree)
     degree_b.append(Button(layer5, text = degree, command=callback, font=('DejaVu Math TeX Gyre',10), bg="#FFD700", fg="black", height=1, width=2).grid(row=1, column=curr_column, sticky=EW, padx=10))
     curr_column += 1
 
