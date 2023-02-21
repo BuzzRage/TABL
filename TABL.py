@@ -56,6 +56,7 @@ layer2.columnconfigure(2, weight=1)
 layer2.columnconfigure(3, weight=1)
 layer2.columnconfigure(4, weight=1)
 layer2.rowconfigure(0, weight=1)
+layer2.rowconfigure(1, weight=1)
 layer2.configure(bg="#000000")
 
 layer3 = LabelFrame(gui)
@@ -511,7 +512,36 @@ def play_selection(tonic=None, scale=None):
         scale = curr_scale
     play_scale(tonic, scale)
     
-
+def create_circle(x, y , r, canvas, fill):
+    x0 = x - r
+    y0 = y - r
+    x1 = x + r
+    y1 = y + r
+    return canvas.create_oval(x0, y0, x1, y1, fill=fill)
+    
+def plot_circle_fifths():
+    w = 400
+    h = 400
+    fifth_circle_gui = Toplevel(gui)
+    fifth_circle_gui.title("Circle of Fifths")
+    fifth_circle_gui.geometry(str(w)+"x"+str(h))
+    fifth_circle_gui.configure(bg=gui["bg"])
+    
+    circle = Canvas(fifth_circle_gui, width=w, height=h)
+    circle.configure(bg=gui["bg"])
+    circle.grid()
+    
+    create_circle(w/2, h/2, 200, circle, fill = "white")
+    
+    circle.create_text(w/2, h*0.08, text = "C", font = ("bold", 20), fill="black")
+    circle.create_text(w*0.72, h*0.13, text = "G", font = ("bold", 20), fill="black")
+    #circle.create_text(w*0.78, h*0.2, text = "D", font = ("bold", 20), fill="black")
+    
+    create_circle(w/2, h/2, 150, circle, fill = "black")
+    for i in range(0,12):
+        circle.create_arc(0, 0, w, h, start=90-(360/12)/2-i*(360/12), extent=(360/12), width = 3, outline=layer1["bg"])
+    create_circle(w/2, h/2, 90, circle, fill = "white")
+    
 
 notes_b = list()
 curr_column = 1
@@ -532,6 +562,9 @@ for note in notes:
 tstep_s  = Scale(layer2, label="Time Step", from_=0.1, to=3, bg="red", fg="#333333", orient=HORIZONTAL, relief=SUNKEN, resolution = 0.1, command=set_time_step, length=100)
 tstep_s.set(default_time_step)
 tstep_s.grid(column=0, row=0, padx=10, sticky=EW)
+
+fifth_circle_b = Button(layer2, text="Circle of Fifths", bg="green", fg="#FFFFFF", command=plot_circle_fifths)
+fifth_circle_b.grid(row=1, column=0, padx=10, sticky=EW)
 
 note_gui = Label(layer2, text="", bg="black", pady=30, padx=30, font=("Helvetica", 40), relief=SUNKEN)
 note_gui.grid(column=1, row=0, columnspan=4, rowspan=2, sticky=EW, padx=5)
