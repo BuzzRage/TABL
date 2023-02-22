@@ -533,14 +533,24 @@ def plot_circle_fifths():
     
     create_circle(w/2, h/2, 200, circle, fill = "white")
     
-    circle.create_text(w/2, h*0.08, text = "C", font = ("bold", 20), fill="black")
-    circle.create_text(w*0.72, h*0.13, text = "G", font = ("bold", 20), fill="black")
-    #circle.create_text(w*0.78, h*0.2, text = "D", font = ("bold", 20), fill="black")
+    circle.create_text(w*0.5, h*0.075, text = "C", font = ("bold", 20), fill="black")
+    circle.create_text(w*0.7125, h*0.125, text = "G", font = ("bold", 20), fill="black")
+    circle.create_text(w*0.875, h*0.275, text = "D", font = ("bold", 20), fill="black")
+    circle.create_text(w*0.9375, h*0.5, text = "A", font = ("bold", 20), fill="black")
+    circle.create_text(w*0.875, h*0.725, text = "E", font = ("bold", 20), fill="black")
+    circle.create_text(w*0.7125, h*0.875, text = "B", font = ("bold", 20), fill="black")
+    circle.create_text(w*0.5, h*0.925, text = "F#", font = ("bold", 20), fill="black")
+    circle.create_text(w*0.275, h*0.875, text = "Db", font = ("bold", 20), fill="black")
+    circle.create_text(w*0.125, h*0.725, text = "Ab", font = ("bold", 20), fill="black")
+    circle.create_text(w*0.075, h*0.5, text = "Eb", font = ("bold", 20), fill="black")
+    circle.create_text(w*0.125, h*0.275, text = "Bb", font = ("bold", 20), fill="black")
+    circle.create_text(w*0.275, h*0.125, text = "F", font = ("bold", 20), fill="black")
     
-    create_circle(w/2, h/2, 150, circle, fill = "black")
+    
+    create_circle(w/2, h/2, 150, circle, fill = layer1["bg"])
     for i in range(0,12):
-        circle.create_arc(0, 0, w, h, start=90-(360/12)/2-i*(360/12), extent=(360/12), width = 3, outline=layer1["bg"])
-    create_circle(w/2, h/2, 90, circle, fill = "white")
+        circle.create_arc(0, 0, w, h, start=90-(360/12)/2-i*(360/12), extent=(360/12), width = 3, outline="black")
+    create_circle(w/2, h/2, 90, circle, fill = "black")
     
 
 notes_b = list()

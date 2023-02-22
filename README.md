@@ -11,13 +11,17 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
   <img src="./gui.png" />
 </p>
 
+<p align="center">
+  <img src="./circle-of-fifths.png" />
+</p>
+
 ## TO DO
 
 * Features:
     * Add a button to see all triads
     * Add a button to see all sevenths
     * Let the user design its own scale
-    * Include circle of fifths and other graphical / pedagogical tools
+    * Show graphical and pedagogical tools
     
 * GUI:
     * Improve scale display by putting a tabulation for each semitone not valid in a scale
@@ -50,6 +54,7 @@ You can change the soundfont to another (by default, this program uses `TimGM6mb
     * Make a loop on last chord progression
     * Let the user choose the time step
     * Make a loop on selected chord progression
+    * Include circle of fifths
 
 * GUI:
     * Make the tonic change the color (e.g. A = 440 Hz, add 0x440 to the hexacode of a scale)
